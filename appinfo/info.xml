@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>tu_dashboard</id>
+    <name>TU Dashboard</name>
+    <summary>TU Dashboard</summary>
+    <description><![CDATA[TU Dashborad]]></description>
+    <version>1.0.3</version>
+    <licence>agpl</licence>
+    <author mail="markus@conversory.net" homepage="https://conversory.net">Markus Kroisenbrunner</author>
+    <namespace>Tu_Dashboard</namespace>
+    <category>organization</category>
+    <bugs>https://conversory.net</bugs>
+    <dependencies>
+        <nextcloud min-version="29" max-version="29"/>
+    </dependencies>
+
+    <navigations>
+        <navigation>
+            <name>TUDashboard</name>
+            <route>tu_dashboard.page.index</route>
+        </navigation>
+    </navigations>
+</info>

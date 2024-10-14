@@ -1,0 +1,15 @@
+{
+    "name": "F H Dashboard",
+    "description": "TU Dashborad",
+    "type": "project",
+    "license": "AGPL",
+    "authors": [
+        {
+            "name": "Markus Kroisenbrunner"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    }
+}
