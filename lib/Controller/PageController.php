@@ -5,6 +5,7 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;
 use OCP\Files\Folder;
+use OCP\Util;
 
 
 class PageController extends Controller {
@@ -24,7 +25,6 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-
 		try {
 			$favElements = $this->getFavoriteFilePaths(\OC::$server->getUserSession()->getUser()->getUID());
 		} catch (\RuntimeException $e) {

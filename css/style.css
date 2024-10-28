@@ -1,12 +1,11 @@
-#hello {
-	color: red;
-}
-
 
 .icon-fts-files {
 	background-image: url('/apps/files_fulltextsearch/img/files.svg');
 }
 
+#main-content-container {
+	background-color: var(--color-main-background);
+}
 .files_header {
 	height: 50px;
 	border-bottom: solid 1px #efefef;
@@ -564,4 +563,7 @@ table th, table td {
 .style-chooser .vs__clear,
 .style-chooser .vs__open-indicator {
 	fill: #394066;
+}
+button.vs__deselect {
+	background-color: gray;
 }

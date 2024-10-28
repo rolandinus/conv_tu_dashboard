@@ -6,26 +6,27 @@
   "license": "MIT",
   "main": "main.js",
   "scripts": {
-    "dev": "webpack --config webpack.dev.js",
-    "watch": "webpack --progress --watch --config webpack.dev.js",
-    "build": "webpack --progress --config webpack.prod.js",
+    "dev": "NODE_ENV=development webpack --config webpack.js",
+    "watch": "NODE_ENV=development webpack --progress --watch --config webpack.js",
+    "build": "NODE_ENV=production webpack  --progress --config webpack.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "axios": "^0.22.0",
-    "css-loader": "^4.3.0",
-    "vue": "^2.6.0",
-    "vue-select": "^3.1.0"
+    "@nextcloud/auth": "^2.4.0",
+    "@nextcloud/axios": "^2.5.0",
+    "@nextcloud/files": "^3.9.0",
+    "@nextcloud/l10n": "^3.1.0",
+    "@nextcloud/router": "^3.0.1",
+    "@nextcloud/vue": "^8.11.2",
+    "vue-select": "^3.1.0",
+    "vue": "^2.7.16"
   },
   "devDependencies": {
-    "install": "^0.12.2",
-    "node-sass": "^7.0.1",
-    "npm": "^8.5.0",
-    "sass-loader": "^13.0.0",
-    "vue-loader": "^15.8.3",
-    "vue-template-compiler": "^2.6.14",
-    "webpack": "^5.72.1",
-    "webpack-cli": "^4.9.2",
-    "webpack-merge": "^4.1.5"
+    "@nextcloud/browserslist-config": "^3.0.1",
+    "@nextcloud/eslint-config": "^8.3.0",
+    "@nextcloud/stylelint-config": "^2.4.0",
+    "@nextcloud/webpack-vue-config": "^6.0.1",
+    "eslint-webpack-plugin": "^4.1.0",
+    "stylelint-webpack-plugin": "^5.0.0"
   }
 }
