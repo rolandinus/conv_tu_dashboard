@@ -1,3 +1,4 @@
+
 <template>
 	<div id="tu-dashboard" class="">
 		<div class="hero-image"
@@ -29,129 +30,29 @@
 		</div>
 		<div id="main-content-container" style="padding: 15px; display: flex;">
 			<div style="padding: 15px; width: 100%; ">
-				<h2>
-					Favoriten
-				</h2>
-				<div id="app-content-favorites"
-					 class="viewcontainer hide-hidden-files has-comments"
-					 style="">
-					<div id="emptycontent" class="hidden">
-						<div class="icon-starred"></div>
-						<h2>Noch keine Favoriten vorhanden</h2>
-						<p>Dateien und Ordner, die als Favoriten markiert
-							werden, erscheinen hier</p>
-					</div>
-					<table id="filestable" class="list-container">
-
-						<thead>
-						<tr>
-							<th id="headerName" class="column-name">
-								<div id="headerName-container">
-									<span class="columntitle name">Name</span>
-								</div>
-							</th>
-						</tr>
-						</thead>
-						<tbody id="fileList">
-						<tr v-for="(item, index) in favorites">
-							<td class="filename">
-								<a class="name" :href="favoriteFileUrl[index]" target="_blank">
-									<div class="thumbnail-wrapper">
-										<div class="thumbnail"
-											 :style="{'background-image': 'url(' + favBackgroundImageURL[index] + ')'}">
-											<div
-												class="favorite-mark permanent">
-												<span
-													class="icon icon-starred"></span>
-											</div>
-										</div>
-									</div>
-									<span class="nametext">
-											<span class="innernametext">{{
-													item.displayname
-												}}</span>
-											</span>
-								</a>
-							</td>
-						</tr>
-
-						</tbody>
-					</table>
+				<h2>Favoriten</h2>
+				<div id="app-content-favorites" class="viewcontainer hide-hidden-files has-comments">
+					<FileList
+						:items="favorites"
+						state="ready"
+						initialText="Initialisiere Favoriten..."
+						loadingText="Lade Favoriten..."
+						emptyText="Noch keine Favoriten vorhanden"
+						:columns="['name', 'size', 'modified']"
+					/>
 				</div>
 			</div>
 
 			<div style="padding: 15px; width: 100%; ">
-				<h2>
-					Suchergebnis
-				</h2>
-				<div v-if="!searched">
-					<span class="color-grey">Führen Sie eine Suche aus</span>
-				</div>
-				<div v-else>
-					<div v-show="searching">
-						<span class="color-grey">Suche läuft...</span>
-					</div>
-					<div v-show="!items.length && !searching">
-						<span class="color-grey">Kein Dateien oder Ordner gefunden</span>
-					</div>
-					<table id="filestable" class="list-container"
-						   v-show="items.length">
-						<thead>
-						<tr>
-							<th id="headerName" class="column-name">
-								<div id="headerName-container">
-									<span class="columntitle name">Name</span>
-								</div>
-							</th>
-							<th>
-								<div>
-									<span class="columntitle size">Größe</span>
-								</div>
-							</th>
-							<th>
-								<div>
-									<span class="columntitle modified">Zuletzt geändert</span>
-								</div>
-							</th>
-						</tr>
-						</thead>
-						<tbody id="fileList">
-						<tr v-for="(item, index) in items">
-							<td class="filename">
-								<a class="name" :href="item.link" target="_blank">
-									<div class="thumbnail-wrapper">
-										<div class="thumbnail">
-											<img
-												:src="backgroundImageURL[index]">
-										</div>
-									</div>
-									<span class="nametext">
-												<span class="innernametext">{{
-														item.info.file
-													}}</span><span>{{
-											item.info.mine
-										}}</span>
-											</span>
-								</a>
-							</td>
-							<td class="size">
-                     <span class="nametext">
-												<span class="innernametext">{{
-														humanFileSize(item.info.size)
-													}}</span>
-											</span>
-							</td>
-							<td class="modified">
-                     <span class="nametext">
-												<span class="innernametext">{{
-														(new Date(item.info.mtime * 1000).toLocaleDateString())
-													}}</span>
-											</span>
-							</td>
-						</tr>
-						</tbody>
-					</table>
-				</div>
+				<h2>Suchergebnis</h2>
+				<FileList
+					:items="items"
+					:state="searchState"
+					initialText="Führen Sie eine Suche aus"
+					loadingText="Suche läuft..."
+					emptyText="Keine Dateien oder Ordner gefunden"
+					:columns="['name', 'size', 'modified']"
+				/>
 			</div>
 
 		</div>
@@ -168,6 +69,10 @@ import * as ncrouter from '@nextcloud/router'
 import { generateUrl, getAppRootUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 
+import FileList from './components/FileList'
+
+
+
 const APP_ID = 'tu_dashboard'
 const appRootUrl = getAppRootUrl(APP_ID)
 
@@ -180,7 +85,8 @@ export default {
 	name: 'tu_dashboard',
 	props: ['background', 'favs', 'favfolders'],
 	components: {
-		'v-select': vSelect
+		'v-select': vSelect,
+		FileList
 	},
 	data () {
 		return {
@@ -200,6 +106,11 @@ export default {
 		};
 	},
 	computed: {
+		searchState() {
+			if (!this.searched) return 'initial'
+			if (this.searching) return 'loading'
+			return 'ready'
+		},
 		infoJSON: function () {
 			return this.items.map(function (item) {
 				return JSON.stringify(item.info);
@@ -225,7 +136,7 @@ export default {
 
 			});
 		},
-		favBackgroundImageURL: function () {
+		favoriteBackgroundImageUrl: function () {
 			return this.favorites.map(function (item) {
 				console.log('FAV ITEM2', item)
 				return generateUrl("/core/preview?fileId=" + item.fileid + "&y=32&mimeFallback=true&a=1&a=1");
@@ -283,7 +194,6 @@ export default {
 				this.searched = true
 				this.searching = true
 				console.log('METATAGS', metaTags, metaTags.length)
-				console.log(this)
 				$.ajax({
 					method: 'GET',
 					url: generateUrl('/apps/fulltextsearch/v1/search'),
@@ -303,17 +213,23 @@ export default {
 							}
 						)
 					}
-				}).then((response) => {
-						console.log('SEARCH RESPONSE', response)
-						this.searching = false
-						if (response.result[0].documents) {
-							this.items = response.result[0].documents
-							console.log('ITEMS', this.items)
-						} else {
-							this.items = [];
-						}
+				}).then(response => {
+					console.log('SEARCH RESPONSE', response)
+					this.searching = false
+					if (response.result[0].documents) {
+						// Transform the documents to match favorites structure while preserving original data
+						this.items = response.result[0].documents.map(item => ({
+							...item,
+							displayname: item.info.file,
+							size: item.info.size,
+							mtime: item.info.mtime,
+							fileid: item.id
+						}));
+						console.log('ITEMS', this.items)
+					} else {
+						this.items = [];
 					}
-				);
+				});
 			}
 		}
 	}
