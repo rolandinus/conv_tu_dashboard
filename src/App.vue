@@ -1,24 +1,3 @@
-<!--
-  - @copyright Copyright (c) 2018 Roeland Jago Douma <roeland@famdouma.nl>
-  -
-  - @author Roeland Jago Douma <roeland@famdouma.nl>
-  -
-  - @license GNU AGPL version 3 or any later version
-  -
-  - This program is free software: you can redistribute it and/or modify
-  - it under the terms of the GNU Affero General Public License as
-  - published by the Free Software Foundation, either version 3 of the
-  - License, or (at your option) any later version.
-  -
-  - This program is distributed in the hope that it will be useful,
-  - but WITHOUT ANY WARRANTY; without even the implied warranty of
-  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  - GNU Affero General Public License for more details.
-  -
-  - You should have received a copy of the GNU Affero General Public License
-  - along with this program. If not, see <http://www.gnu.org/licenses/>.
-  -
-  -->
 <template>
 	<div id="tu-dashboard" class="">
 		<div class="hero-image"
@@ -42,15 +21,13 @@
 							Suchen
 							<div @click.stop.prevent="search" class="arrow"
 								 id="search-arrow"
-								 style="background-image:url('/custom_apps/tu_dashboard/img/arrow.svg')"></div>
+								 :style="{'background-image':'url('+submitArrowUrl+')'}"></div>
 						</button>
 					</div>
 				</form>
 			</div>
 		</div>
-
 		<div id="main-content-container" style="padding: 15px; display: flex;">
-
 			<div style="padding: 15px; width: 100%; ">
 				<h2>
 					Favoriten
@@ -76,32 +53,9 @@
 						</tr>
 						</thead>
 						<tbody id="fileList">
-						<tr v-for="(item, index) in favoritesfolders">
-							<td class="filename">
-								<a class="name" :href="item.href">
-									<div class="thumbnail-wrapper">
-										<div class="thumbnail"
-											 style="background-image:url(/apps/theming/img/core/filetypes/folder.svg?v=11);">
-											<div
-												class="favorite-mark permanent">
-												<span
-													class="icon icon-starred"></span>
-												<span class="hidden-visually">Favorisiert</span>
-											</div>
-										</div>
-									</div>
-									<span class="nametext">
-											<span class="innernametext">{{
-													item.name
-												}}</span>
-											</span>
-								</a>
-							</td>
-						</tr>
-
 						<tr v-for="(item, index) in favorites">
 							<td class="filename">
-								<a class="name" :href="fileURL[index]">
+								<a class="name" :href="favoriteFileUrl[index]" target="_blank">
 									<div class="thumbnail-wrapper">
 										<div class="thumbnail"
 											 :style="{'background-image': 'url(' + favBackgroundImageURL[index] + ')'}">
@@ -109,13 +63,12 @@
 												class="favorite-mark permanent">
 												<span
 													class="icon icon-starred"></span>
-												<span class="hidden-visually">Favorisiert</span>
 											</div>
 										</div>
 									</div>
 									<span class="nametext">
 											<span class="innernametext">{{
-													item.name
+													item.displayname
 												}}</span>
 											</span>
 								</a>
@@ -123,24 +76,6 @@
 						</tr>
 
 						</tbody>
-						<tfoot>
-						<tr class="summary">
-							<td>
-												<span class="info">
-															<span
-																class="dirinfo">{{
-																	favoritesfolders.length
-																}} Ordner</span>
-															<span
-																class="connector"> und </span>
-															<span
-																class="fileinfo">{{
-																	favorites.length
-																}} Dateien</span>
-													</span>
-							</td>
-						</tr>
-						</tfoot>
 					</table>
 				</div>
 			</div>
@@ -183,7 +118,7 @@
 						<tbody id="fileList">
 						<tr v-for="(item, index) in items">
 							<td class="filename">
-								<a class="name" :href="item.link">
+								<a class="name" :href="item.link" target="_blank">
 									<div class="thumbnail-wrapper">
 										<div class="thumbnail">
 											<img
@@ -228,18 +163,29 @@ console.log('APP tu dash')
 // import BruteForceItem from './components/BruteForceItem'
 import vSelect from 'vue-select'
 import * as ncfiles from "@nextcloud/files"
+import { davGetClient, davRootPath, getFavoriteNodes } from '@nextcloud/files'
+import * as ncrouter from '@nextcloud/router'
+import { generateUrl, getAppRootUrl } from '@nextcloud/router'
+import { getCurrentUser } from '@nextcloud/auth'
 
+const APP_ID = 'tu_dashboard'
+const appRootUrl = getAppRootUrl(APP_ID)
+
+const client = davGetClient()
+const favorites = await getFavoriteNodes(client)
+console.log('FAVS', favorites)
 console.log('FILES', ncfiles)
+console.log('ROUTER', ncrouter)
 export default {
-	name: 'App',
-	props: ['userName', 'background', 'favs', 'favfolders'],
+	name: 'tu_dashboard',
+	props: ['background', 'favs', 'favfolders'],
 	components: {
 		'v-select': vSelect
 	},
 	data () {
 		return {
 			items: [],
-			favorites: [],
+			favorites,
 			favoritesfolders: [],
 			term: '',
 			metaTerm: '',
@@ -248,6 +194,9 @@ export default {
 			tags: '',
 			selectedTags: [],
 			systemTags: [],
+			submitArrowUrl: appRootUrl + '/img/arrow.svg',
+			userName: getCurrentUser().displayName,
+
 		};
 	},
 	computed: {
@@ -264,43 +213,32 @@ export default {
 		backgroundImageURL: function () {
 			return this.items.map(function (item) {
 				if (item.info.type == "dir")
-					return OC.generateUrl("/apps/theming/img/core/filetypes/folder.svg");
+					return generateUrl("/apps/theming/img/core/filetypes/folder.svg");
 				else {
-					return OC.generateUrl("/core/preview?fileId=" + item.id + "&y=32&mimeFallback=true&a=1&a=1")
+					return generateUrl("/core/preview?fileId=" + item.id + "&y=32&mimeFallback=true&a=1&a=1")
 				}
 			});
 		},
-		fileURL: function () {
+		favoriteFileUrl: function () {
 			return this.favorites.map(function (item) {
-				return OC.getRootPath() + '/remote.php/webdav' + item.path;
+				return generateUrl(`/f/${item.fileid}`);
+
 			});
 		},
 		favBackgroundImageURL: function () {
-			return ''
 			return this.favorites.map(function (item) {
-				var urlSpec = {
-					file: item.name,
-					c: item.etag
-				};
-				urlSpec = urlSpec || {};
-				urlSpec.x *= window.devicePixelRatio;
-				urlSpec.y *= window.devicePixelRatio;
-				urlSpec.x = Math.ceil(urlSpec.x);
-				urlSpec.y = Math.ceil(urlSpec.y);
-				urlSpec.forceIcon = 0;
-				return OC.generateUrl("/core/preview?fileId=" + item.id + "&x=32&y=32&forceIcon=0&c=" + item.etag);
+				console.log('FAV ITEM2', item)
+				return generateUrl("/core/preview?fileId=" + item.fileid + "&y=32&mimeFallback=true&a=1&a=1");
 			});
 		},
 	},
 	mounted: function () {
 		$.ajax({
 			method: 'GET',
-			url: OC.generateUrl('/apps/tu_dashboard/systemtags')
+			url: generateUrl(`${appRootUrl}/systemtags`)
 		}).then(response => {
 			this.systemTags = response
 		})
-
-		this.buildResults();
 	},
 	methods: {
 		/**
@@ -329,13 +267,13 @@ export default {
 			}
 			return (size / Math.pow(1024, i)).toFixed(i - 1) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
 		},
-		buildResults: function (event) {
-			this.favorites = JSON.parse(this.favs);
-			this.favoritesfolders = JSON.parse(this.favfolders);
-		},
 		search () {
 			let searchTerm = this.term.toLowerCase()
-			let metaTerm = this.metaTerm
+			let metaTerm = this.metaTerm.toLowerCase()
+			let metaTags = this.metaTerm.toLowerCase().split(' ')
+			// remove empty strings
+			metaTags = metaTags.filter(tag => tag !== '')
+			console.log('TAGS', metaTags.join(","))
 			console.log('SEARCH TERM', searchTerm)
 			if (!RegExp(/\S/).test(searchTerm)) {
 				searchTerm = "*  ";
@@ -344,24 +282,24 @@ export default {
 
 				this.searched = true
 				this.searching = true
-				console.log('METATERM(s)', metaTerm, metaTerm.length)
+				console.log('METATAGS', metaTags, metaTags.length)
 				console.log(this)
 				$.ajax({
 					method: 'GET',
-					url: OC.generateUrl('/apps/fulltextsearch/v1/search'),
+					url: generateUrl('/apps/fulltextsearch/v1/search'),
 					data: {
 						request: JSON.stringify({
 								providers: 'all',
 								search: searchTerm,
 								page: 1,
-								metatags: metaTerm ? [metaTerm] : [],
+								metatags: metaTags,
 								options: {
 									"files_local": "0",
 									"files_extension": "",
 									"tags": this.selectedTags,
-									metatags: metaTerm ? [metaTerm] : [],
+									"metatags": metaTags,
 								},
-								size: 20
+								size: 100
 							}
 						)
 					}
@@ -556,7 +494,7 @@ export default {
 
 .app-tu_dashboard #filestable #fileList .thumbnail img {
 	width: 100%;
-	max-height: 32px;
+	max-height: 64px;
 	object-fit: contain;
 }
 

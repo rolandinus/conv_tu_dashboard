@@ -3,6 +3,10 @@
 	background-image: url('/apps/files_fulltextsearch/img/files.svg');
 }
 
+#tu-dashboard {
+	overflow-y: scroll;
+}
+
 #main-content-container {
 	background-color: var(--color-main-background);
 }
@@ -363,7 +367,30 @@ input.options_small {
 
 .search-term-container {
 	position: relative;
+
 }
+
+.search-term-container input {
+	border-radius: 0;
+	font-size: 18px !important;
+	background-color: var(--color-main-background);
+}
+.search-term-container div {
+	border-radius: 0;
+	background-color: var(--color-main-background);
+}
+
+
+.search-term-container .vs__dropdown-toggle input.vs__search::placeholder {
+	font-size: 15px !important;
+	color: var(--color-text-maxcontrast) !important;
+	background-color: var(--color-main-background) !important;
+}
+.search-term-container .vs__dropdown-toggle input.vs__search {
+	margin: 0 !important;
+}
+
+
 
 
 .icon-container {
@@ -444,19 +471,19 @@ input.options_small {
 }
 
 .thumbnail-wrapper {
-	width: 0;
-	min-width: 50px;
-	max-width: 50px;
-	height: 50px;
+	width: 75px;
+	min-width: 75px;
+	max-width: 75px;
+	height: 75px;
 }
 
 .thumbnail-wrapper .thumbnail {
 	display: inline-block;
-	width: 32px;
-	height: 32px;
-	background-size: 32px;
-	margin-left: 9px;
-	margin-top: 9px;
+	width: 70px;
+	height: 70px;
+	background-size: 70px;
+	margin-left: 0;
+	margin-top: 0;
 	border-radius: var(--border-radius);
 	cursor: pointer;
 	position: absolute;
@@ -508,8 +535,8 @@ table td.filename a.name {
 	position: relative;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	height: 50px;
-	line-height: 50px;
+	height: 70px;
+	line-height: 70px;
 	padding: 0;
 }
 
@@ -566,4 +593,9 @@ table th, table td {
 }
 button.vs__deselect {
 	background-color: gray;
+}
+
+#search-arrow {
+	background-color: transparent;
+	background-image: url("../img/arrow.svg");
 }
