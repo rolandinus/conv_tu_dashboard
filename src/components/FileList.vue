@@ -4,9 +4,14 @@
 		<div v-else-if="state === 'loading'" class="color-grey">{{ loadingText }}</div>
 		<div v-else-if="state === 'ready' && !items.length" class="color-grey">{{ emptyText }}</div>
 
-		<table id="filestable" class="list-container" v-else-if="state === 'ready' && items.length">
+		<table class="filestable list-container" v-else-if="state === 'ready' && items.length">
 			<thead>
 			<tr>
+				<th id="headerName" class="column-thumbnail">
+					<div id="headerName-container">
+						<span class="columntitle thumbnail"></span>
+					</div>
+				</th>
 				<th id="headerName" class="column-name">
 					<div id="headerName-container">
 						<span class="columntitle name">Name</span>
@@ -24,15 +29,19 @@
 				</th>
 			</tr>
 			</thead>
-			<tbody id="fileList">
+			<tbody class=".fileList">
 			<tr v-for="(item, index) in items" :key="item.fileid || index">
-				<td class="filename">
+				<td class="col-thumbnail">
 					<a class="name" :href="generateFileUrl(item)" target="_blank">
 						<div class="thumbnail-wrapper">
-							<div class="thumbnail">
-								<img :src="generatePreviewUrl(item)">
+							<div class="thumbnail" v-html="generateThumbnail(item)">
 							</div>
 						</div>
+					</a>
+				</td>
+
+				<td class="filename">
+					<a class="name" :href="generateFileUrl(item)" target="_blank">
 						<span class="nametext">
                                 <span class="innernametext">{{ item.displayname }}</span>
                             </span>
@@ -56,6 +65,7 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import FolderSvg from '@mdi/svg/svg/folder.svg?raw'
 
 export default {
 	name: 'FileList',
@@ -108,9 +118,21 @@ export default {
 		generateFileUrl(item) {
 			return generateUrl(`/f/${item.fileid}`)
 		},
-		generatePreviewUrl(item) {
-			return generateUrl(`/core/preview?fileId=${item.fileid}&y=32&mimeFallback=true&a=1&a=1`)
+		generateThumbnail(item) {
+			if (item.type === 'folder') {
+				return FolderSvg
+			}
+			return '<img src='+
+				generateUrl(`/core/preview?fileId=${item.fileid}&x=140&y=140&mimeFallback=true&a=1`)+'/>'
 		}
 	}
 }
 </script>
+<style>
+.thumbnail svg {
+	fill: var(--color-primary-element);
+}
+.list-container .nametext {
+	padding-left: 0.5em;
+}
+</style>

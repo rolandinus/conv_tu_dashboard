@@ -5,9 +5,9 @@
 			 :style="{'background-image': 'url(' + background + ')'}">
 			<div class="hero-text">
 				<form @submit.prevent="search">
-					<a href="#"><h3 class="welcomeText">Willkommen {{
+					<a href="#"><h2 class="welcomeText">Willkommen {{
 							userName
-						}}!</h3></a>
+						}}!</h2></a>
 					<div class="search-term-container">
 						<input type="text" id="term" name="term"
 							   placeholder="Suche nach Dateien" v-model="term">
@@ -38,7 +38,7 @@
 						initialText="Initialisiere Favoriten..."
 						loadingText="Lade Favoriten..."
 						emptyText="Noch keine Favoriten vorhanden"
-						:columns="['name', 'size', 'modified']"
+						:columns="['name', ]"
 					/>
 				</div>
 			</div>
@@ -66,7 +66,7 @@ import vSelect from 'vue-select'
 import * as ncfiles from "@nextcloud/files"
 import { davGetClient, davRootPath, getFavoriteNodes } from '@nextcloud/files'
 import * as ncrouter from '@nextcloud/router'
-import { generateUrl, getAppRootUrl } from '@nextcloud/router'
+import { generateUrl, getAppRootUrl, generateFilePath} from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 
 import FileList from './components/FileList'
@@ -83,13 +83,13 @@ console.log('FILES', ncfiles)
 console.log('ROUTER', ncrouter)
 export default {
 	name: 'tu_dashboard',
-	props: ['background', 'favs', 'favfolders'],
 	components: {
 		'v-select': vSelect,
 		FileList
 	},
 	data () {
 		return {
+			background: generateFilePath('tu_dashboard','img', 'conversory-project-tu-graz-studenten.jpg'),
 			items: [],
 			favorites,
 			favoritesfolders: [],
@@ -121,32 +121,11 @@ export default {
 				return JSON.stringify(item);
 			});
 		},
-		backgroundImageURL: function () {
-			return this.items.map(function (item) {
-				if (item.info.type == "dir")
-					return generateUrl("/apps/theming/img/core/filetypes/folder.svg");
-				else {
-					return generateUrl("/core/preview?fileId=" + item.id + "&y=32&mimeFallback=true&a=1&a=1")
-				}
-			});
-		},
-		favoriteFileUrl: function () {
-			return this.favorites.map(function (item) {
-				return generateUrl(`/f/${item.fileid}`);
-
-			});
-		},
-		favoriteBackgroundImageUrl: function () {
-			return this.favorites.map(function (item) {
-				console.log('FAV ITEM2', item)
-				return generateUrl("/core/preview?fileId=" + item.fileid + "&y=32&mimeFallback=true&a=1&a=1");
-			});
-		},
 	},
 	mounted: function () {
 		$.ajax({
 			method: 'GET',
-			url: generateUrl(`${appRootUrl}/systemtags`)
+			url: generateUrl(`/apps/${APP_ID}/systemtags`)
 		}).then(response => {
 			this.systemTags = response
 		})
@@ -180,7 +159,6 @@ export default {
 		},
 		search () {
 			let searchTerm = this.term.toLowerCase()
-			let metaTerm = this.metaTerm.toLowerCase()
 			let metaTags = this.metaTerm.toLowerCase().split(' ')
 			// remove empty strings
 			metaTags = metaTags.filter(tag => tag !== '')
@@ -206,7 +184,7 @@ export default {
 								options: {
 									"files_local": "0",
 									"files_extension": "",
-									"tags": this.selectedTags,
+									"tags": this.selectedTags.map(tag=>tag.toLowerCase()),
 									"metatags": metaTags,
 								},
 								size: 100

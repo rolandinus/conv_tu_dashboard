@@ -12,7 +12,7 @@
     <category>organization</category>
     <bugs>https://conversory.net</bugs>
     <dependencies>
-        <nextcloud min-version="29" max-version="29"/>
+        <nextcloud min-version="29" max-version="31"/>
     </dependencies>
 
     <navigations>

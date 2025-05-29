@@ -9,6 +9,7 @@
 
 #main-content-container {
 	background-color: var(--color-main-background);
+	min-height: 500px;
 }
 .files_header {
 	height: 50px;
@@ -470,58 +471,46 @@ input.options_small {
     border: none;
 }
 
+.filestable {
+	position: relative;
+	width: 100%;
+	min-width: 250px;
+	--thumbail-size: 140px;
+	--thumbail-margin: 6px;
+}
+
 .thumbnail-wrapper {
-	width: 75px;
-	min-width: 75px;
-	max-width: 75px;
-	height: 75px;
+	width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	min-width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	max-width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
 }
 
 .thumbnail-wrapper .thumbnail {
 	display: inline-block;
-	width: 70px;
-	height: 70px;
-	background-size: 70px;
-	margin-left: 0;
-	margin-top: 0;
+	width: var(--thumbail-size);
+	height: var(--thumbail-size);
+	background-size: contain;
+	margin: var(--thumbail-margin);
 	border-radius: var(--border-radius);
 	cursor: pointer;
 	position: absolute;
 	z-index: 4;
 }
-
-
-#filestable {
-	position: relative;
-	width: 100%;
-	min-width: 250px;
-}
-
-#filestable .filename .action .icon, #filestable .selectedActions a .icon, #filestable .filename .favorite-mark .icon, #controls .actions .button .icon {
-	display: inline-block;
-	vertical-align: middle;
-	background-size: 16px 16px;
-}
-
-#filestable .filename .favorite-mark .icon-starred {
-	background-image: var(--icon-star-dark-fc0);
-}
-
-#fileList tr td.filename .favorite-mark {
-	position: absolute;
+.thumbnail-wrapper .thumbnail img {
+	height: 100%;
 	display: block;
-	top: -6px;
-	right: -6px;
-	line-height: 100%;
-	text-align: center;
+	margin: auto;
+
 }
 
-#filestable tbody tr {
+
+.filestable tbody tr {
 	transition: background-color 0.3s ease;
   height: 51px;
 }
 
-#fileList .favorite-mark.permanent {
+.fileList .favorite-mark.permanent {
 	opacity: 1;
 }
 
@@ -535,8 +524,8 @@ table td.filename a.name {
 	position: relative;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	height: 70px;
-	line-height: 70px;
+	height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	line-height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
 	padding: 0;
 }
 
