@@ -89,7 +89,7 @@ export default {
 	},
 	data () {
 		return {
-			background: generateFilePath('tu_dashboard','img', 'conversory-project-tu-graz-studenten.jpg'),
+			background: generateFilePath('tu_dashboard','img', 'conversory-tuuls-dam-header.jpg'),
 			items: [],
 			favorites,
 			favoritesfolders: [],

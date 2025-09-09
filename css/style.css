@@ -470,38 +470,54 @@ input.options_small {
     outline: none;
     border: none;
 }
-
 .filestable {
 	position: relative;
 	width: 100%;
 	min-width: 250px;
+	table-layout: auto; /* Changed from fixed to auto */
 	--thumbail-size: 140px;
 	--thumbail-margin: 6px;
 }
 
-.thumbnail-wrapper {
-	width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+/* Thumbnail column - let it size based on content */
+.filestable .column-thumbnail {
+	width: auto;
 	min-width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
-	max-width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+}
+
+/* Name column - allow it to expand and wrap */
+.filestable .column-name {
+	width: auto;
+	min-width: 200px; /* Minimum readable width */
+}
+
+.thumbnail-wrapper {
+	width: auto; /* Changed from calc() to auto */
+	min-width: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	max-width: none; /* Remove max-width constraint */
 	height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	display: inline-block;
 }
 
 .thumbnail-wrapper .thumbnail {
 	display: inline-block;
-	width: var(--thumbail-size);
+	width: auto; /* Changed from var(--thumbail-size) to auto */
+	max-width: none; /* Remove width constraint */
 	height: var(--thumbail-size);
 	background-size: contain;
 	margin: var(--thumbail-margin);
 	border-radius: var(--border-radius);
 	cursor: pointer;
-	position: absolute;
+	position: relative; /* Changed from absolute */
 	z-index: 4;
 }
+
 .thumbnail-wrapper .thumbnail img {
 	height: 100%;
+	width: auto; /* Maintain aspect ratio */
+	max-height: var(--thumbail-size);
 	display: block;
 	margin: auto;
-
 }
 
 
@@ -519,14 +535,74 @@ table th .columntitle.name {
 	margin-left: 50px;
 }
 
-table td.filename a.name {
+
+.filestable td.filename a.name {
 	display: flex;
 	position: relative;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
-	line-height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	height: auto; /* Changed from calc() to auto */
+	min-height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+	line-height: 1.4; /* Better line height for wrapped text */
+	padding: var(--thumbail-margin) 0;
+	align-items: center;
+}
+
+.filestable td.filename a.name  span.nametext {
 	padding: 0;
+	word-wrap: break-word;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	hyphens: auto;
+	text-wrap: wrap;
+}
+
+.filestable .innernametext {
+	display: block;
+	line-height: 1.4;
+}
+
+/* Ensure table cells align properly */
+.filestable tbody tr {
+	transition: background-color 0.3s ease;
+	height: auto; /* Changed from fixed 51px */
+	min-height: calc(var(--thumbail-size) + 2 * var(--thumbail-margin));
+}
+
+.filestable td {
+	vertical-align: middle;
+	padding: var(--thumbail-margin);
+
+}
+
+
+td.modified .nametext,
+td.size .nametext{
+	padding: 0;
+}
+
+.filestable td.col-thumbnail {
+	width: 1%; /* This will make it as narrow as possible while fitting content */
+	white-space: nowrap;
+}
+
+.filestable td.filename {
+	width: auto;
+	min-width: 150px;
+	max-width: 0; /* Forces wrapping in fixed table layout */
+}
+
+/* Size and modified columns */
+.filestable td.size,
+.filestable td.modified {
+	white-space: nowrap;
+	width: auto;
+	vertical-align: middle;
+}
+
+table th .columntitle.name {
+	padding-left: 5px;
+	margin-left: 0; /* Reduced from 50px since thumbnail column is now separate */
 }
 
 table th .columntitle {
