@@ -6,18 +6,18 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;
 use OCP\Files\Folder;
 use OCP\Util;
-use OCP\IConfig;
 use OCP\AppFramework\Services\IInitialState;
+use OCP\AppFramework\Services\IAppConfig;
 
 
 class PageController extends Controller {
 
-	private $config;
+	private $appConfig;
 	private $initialState;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, IInitialState $initialState){
+	public function __construct($AppName, IRequest $request, IAppConfig $appConfig, IInitialState $initialState){
 		parent::__construct($AppName, $request);
-		$this->config = $config;
+		$this->appConfig = $appConfig;
 		$this->initialState = $initialState;
 	}
 
@@ -33,10 +33,13 @@ class PageController extends Controller {
 	 */
 	public function index() {
 		// Get enable_gridview config value with fallback to false
-		$enableGridView = $this->config->getAppValue('tu_dashboard', 'enable_gridview', 'false');
+		$enableGridView = $this->appConfig->getAppValueString('enable_gridview', 'false');
+		$enableTagAndOrSwitch = $this->appConfig->getAppValueString('enable_tag_and_or_switch', 'false');
+
 
 		// Provide the value to the frontend via initial state
-		$this->initialState->provideInitialState('enable_gridview', $enableGridView === 'true' || $enableGridView === '1');
+		$this->initialState->provideInitialState('enable_gridview', (bool)$enableGridView );
+		$this->initialState->provideInitialState('enable_tag_and_or_switch', (bool)$enableTagAndOrSwitch);
 
 		try {
 			$favElements = $this->getFavoriteFilePaths(\OC::$server->getUserSession()->getUser()->getUID());

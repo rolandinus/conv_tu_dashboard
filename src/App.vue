@@ -11,10 +11,22 @@
 					<div class="search-term-container">
 						<input type="text" id="term" name="term"
 							   placeholder="Suche nach Dateien" v-model="term">
-						<v-select id="select-search-tags" :options="systemTags"
-								  v-model="selectedTags" class="style-chooser"
-								  multiple
-								  placeholder="Suche nach Tags"></v-select>
+						<div class="tag-search-wrapper">
+							<v-select id="select-search-tags" :options="systemTags"
+									  v-model="selectedTags" class="style-chooser"
+									  multiple
+									  placeholder="Suche nach Tags"></v-select>
+
+							<span
+								class="tag-mode-toggle"
+								@click="tagMode = tagMode === 'and' ? 'or' : 'and'"
+								:title="tagMode === 'and' ?
+								'UND-Modus: Alle Tags müssen vorhanden sein. ' : 'ODER-Modus: Mindestens ein Tag muss vorhanden sein.'" >
+							<span class="toggle-label">UND</span>
+							<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOutline : toggleSwitchOffOutline"></span>
+							<span class="toggle-label">ODER</span>
+						</span>
+						</div>
 						<input type="text" id="meta-term" name="meta-term"
 							   placeholder="Suche in Metadata"
 							   v-model="metaTerm">
@@ -72,7 +84,7 @@
 					initialText="Führen Sie eine Suche aus"
 					loadingText="Suche läuft..."
 					emptyText="Keine Dateien oder Ordner gefunden"
-					:columns="['name', 'size', 'modified']"
+					:columns="['name', 'size', 'modified', 'info']"
 					:class="{ 'grid-view': isGridView }"
 				/>
 			</div>
@@ -95,6 +107,9 @@ import ViewGridIcon from '@mdi/svg/svg/view-grid.svg?raw'
 import FormatListBulletedSquareIcon from '@mdi/svg/svg/format-list-bulleted-square.svg?raw'
 import FullscreenIcon from '@mdi/svg/svg/fullscreen.svg?raw'
 import FullscreenExitIcon from '@mdi/svg/svg/fullscreen-exit.svg?raw'
+// import switch icon
+import ToggleSwitchOutline from '@mdi/svg/svg/toggle-switch-outline.svg?raw';
+import ToggleSwitchOffOutline from '@mdi/svg/svg/toggle-switch-off-outline.svg?raw';
 
 import FileList from './components/FileList'
 
@@ -131,6 +146,7 @@ export default {
 			tags: '',
 			selectedTags: [],
 			systemTags: [],
+			tagMode: 'and',
 			submitArrowUrl: appRootUrl + '/img/arrow.svg',
 			userName: getCurrentUser().displayName,
 			isSearchFullwidth: false,
@@ -140,6 +156,8 @@ export default {
 			formatListBulletedSquareIcon: FormatListBulletedSquareIcon,
 			fullscreenIcon: FullscreenIcon,
 			fullscreenExitIcon: FullscreenExitIcon,
+			toggleSwitchOutline: ToggleSwitchOutline,
+			toggleSwitchOffOutline: ToggleSwitchOffOutline,
 
 		};
 	},
@@ -224,6 +242,7 @@ export default {
 									"files_extension": "",
 									"tags": this.selectedTags.map(tag=>tag.toLowerCase()),
 									"metatags": metaTags,
+									"tag_mode": this.tagMode,
 								},
 								size: 100
 							}
@@ -232,7 +251,7 @@ export default {
 				}).then(response => {
 					console.log('SEARCH RESPONSE', response)
 					this.searching = false
-					if (response.result[0].documents) {
+				if (response.result[0].documents) {
 						// Transform the documents to match favorites structure while preserving original data
 						this.items = response.result[0].documents.map(item => ({
 							...item,
@@ -292,22 +311,16 @@ export default {
 }
 
 .style-chooser.v-select {
-	max-width: 600px;
-	min-width: 300px;
+	max-width: 350px;
+	min-width: calc(100% - 125px);
 	width: 100%;
 	margin: 0;
-	margin-right: 5px;
 	text-transform: none;
 }
 
-@media screen and (max-width: 767px) {
-	.style-chooser.v-select {
-		max-width: calc(100% - 40px);
-	}
-}
 
 #term {
-	min-width: 300px;
+	min-width: 100%;
 	height: 40px;
 	margin: 0 5px 0 0;
 }
@@ -380,7 +393,7 @@ export default {
 
 
 .app-tu_dashboard .search-term-container input#meta-term {
-	min-width: 300px;
+	min-width: 100%;
 	height: 40px;
 	margin: 0 5px 0 0;
 	font-size: 18px !important;
@@ -503,6 +516,11 @@ export default {
 	opacity: 1;
 }
 
+.grid-view .filestable {
+	--thumbail-size: 230px;
+	--thumbail-margin: 4px;
+}
+
 /* Grid view styles */
 .grid-view .filestable tbody {
 	display: grid;
@@ -514,6 +532,7 @@ export default {
 .grid-view table.filestable {
 	display: block;
 }
+
 
 .grid-view .filestable tbody tr {
 	display: flex;
@@ -539,6 +558,9 @@ export default {
 .grid-view .filestable tbody tr td.filename {
 	order: 2;
 	flex-direction: column;
+	min-width: 100%;
+	height: 1.5em;
+	align-items: center;
 }
 
 .grid-view .filestable tbody tr td.size {
@@ -553,9 +575,68 @@ export default {
 	color: var(--color-text-maxcontrast);
 }
 
+.grid-view .filestable tbody tr td.info {
+	order: 5;
+	font-size: 0.9em;
+	color: var(--color-text-maxcontrast);
+}
+
 .grid-view .filestable tbody tr .thumbnail-wrapper {
 	order: 1;
 	margin-bottom: 8px;
 }
+
+/* Tag search wrapper with mode toggle */
+.tag-search-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	width: 100%;
+}
+
+.tag-mode-toggle {
+	display: flex;
+	align-items: center;
+	gap: 1px;
+	height: 40px;
+	flex-shrink: 0;
+	padding: 0 4px;
+	cursor: pointer;
+	user-select: none;
+	border-radius: var(--border-radius);
+	transition: background-color 0.2s ease;
+}
+
+
+.tag-mode-toggle .toggle-label {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+	transition: color 0.3s ease;
+	min-width: 32px;
+	text-align: center;
+}
+
+.tag-mode-toggle:hover .toggle-label {
+	color: var(--color-main-text);
+}
+
+.tag-mode-toggle .toggle-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	transition: all 0.3s ease;
+}
+
+.tag-mode-toggle .toggle-icon svg {
+	width: 32px;
+	height: 32px;
+	fill: var(--color-primary-element);
+	transition: fill 0.3s ease;
+}
+
+
 
 </style>

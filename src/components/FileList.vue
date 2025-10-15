@@ -27,6 +27,11 @@
 						<span class="columntitle modified">Zuletzt geändert</span>
 					</div>
 				</th>
+				<th v-if="columns.includes('info')">
+					<div>
+						<span class="columntitle info">Informationen</span>
+					</div>
+				</th>
 			</tr>
 			</thead>
 			<tbody class=".fileList">
@@ -55,6 +60,11 @@
 				<td class="modified" v-if="columns.includes('modified')">
                         <span class="nametext">
                             <span class="innernametext">{{ formatDate(item.mtime) }}</span>
+                        </span>
+				</td>
+				<td class="info" v-if="columns.includes('info')">
+                        <span class="nametext">
+                            <span class="innernametext info-text">{{ formatInfo(item.info) }}</span>
                         </span>
 				</td>
 			</tr>
@@ -124,6 +134,29 @@ export default {
 			}
 			return '<img src='+
 				generateUrl(`/core/preview?fileId=${item.fileid}&x=140&y=140&mimeFallback=true&a=1`)+'/>'
+		},
+		formatInfo(info) {
+			if (!info) {
+				return ''
+			}
+			const parts = []
+
+			// Add copyright if available
+			if (info.copyright) {
+				parts.push(`Copyright: ${info.copyright}`)
+			}
+
+			// Add resolution (width x height) if both are available
+			if (info.imagewidth && info.imageheight) {
+				parts.push(`Auflösung: ${info.imagewidth} x ${info.imageheight}`)
+			}
+
+			// Add DPI if both x and y resolution are available
+			if (info.xresolution && info.yresolution) {
+				parts.push(`DPI: ${info.xresolution} x ${info.yresolution}`)
+			}
+
+			return parts.length > 0 ? parts.join('\n') : '-'
 		}
 	}
 }
@@ -134,5 +167,8 @@ export default {
 }
 .list-container .nametext {
 	padding-left: 0.5em;
+}
+.info-text {
+	white-space: pre-line;
 }
 </style>
