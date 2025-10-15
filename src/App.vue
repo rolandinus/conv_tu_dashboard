@@ -46,14 +46,25 @@
 			<div style="padding: 15px; width: 100%; ">
 				<div style="display: flex; align-items: center; justify-content: space-between;">
 					<h2>Suchergebnis</h2>
-					<button
-						@click="toggleSearchFullwidth"
-						class="fullwidth-toggle-btn"
-						:class="{ active: isSearchFullwidth }"
-						:title="isSearchFullwidth ? 'Favoriten anzeigen' : 'Vollbild'"
-					>
-						<span class="icon" :class="isSearchFullwidth ? 'icon-view-previous' : 'icon-fullscreen'"></span>
-					</button>
+					<div style="display: flex; gap: 8px;">
+						<button
+							v-if="enableGridView"
+							@click="toggleGridView"
+							class="view-toggle-btn"
+							:class="{ active: isGridView }"
+							:title="isGridView ? 'Listenansicht' : 'Rasteransicht'"
+						>
+							<span class="icon" v-html="isGridView ? formatListBulletedSquareIcon : viewGridIcon"></span>
+						</button>
+						<button
+							@click="toggleSearchFullwidth"
+							class="fullwidth-toggle-btn"
+							:class="{ active: isSearchFullwidth }"
+							:title="isSearchFullwidth ? 'Favoriten anzeigen' : 'Vollbild'"
+						>
+							<span class="icon" v-html="isSearchFullwidth ? fullscreenExitIcon : fullscreenIcon"></span>
+						</button>
+					</div>
 				</div>
 				<FileList
 					:items="items"
@@ -62,6 +73,7 @@
 					loadingText="Suche läuft..."
 					emptyText="Keine Dateien oder Ordner gefunden"
 					:columns="['name', 'size', 'modified']"
+					:class="{ 'grid-view': isGridView }"
 				/>
 			</div>
 
@@ -79,6 +91,10 @@ import * as ncrouter from '@nextcloud/router'
 import { generateUrl, getAppRootUrl, generateFilePath} from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
+import ViewGridIcon from '@mdi/svg/svg/view-grid.svg?raw'
+import FormatListBulletedSquareIcon from '@mdi/svg/svg/format-list-bulleted-square.svg?raw'
+import FullscreenIcon from '@mdi/svg/svg/fullscreen.svg?raw'
+import FullscreenExitIcon from '@mdi/svg/svg/fullscreen-exit.svg?raw'
 
 import FileList from './components/FileList'
 
@@ -118,6 +134,12 @@ export default {
 			submitArrowUrl: appRootUrl + '/img/arrow.svg',
 			userName: getCurrentUser().displayName,
 			isSearchFullwidth: false,
+			enableGridView,
+			isGridView: false,
+			viewGridIcon: ViewGridIcon,
+			formatListBulletedSquareIcon: FormatListBulletedSquareIcon,
+			fullscreenIcon: FullscreenIcon,
+			fullscreenExitIcon: FullscreenExitIcon,
 
 		};
 	},
@@ -228,6 +250,9 @@ export default {
 		},
 		toggleSearchFullwidth() {
 			this.isSearchFullwidth = !this.isSearchFullwidth;
+		},
+		toggleGridView() {
+			this.isGridView = !this.isGridView;
 		}
 	}
 }
@@ -434,10 +459,6 @@ export default {
 	border-color: var(--color-primary-element);
 }
 
-.fullwidth-toggle-btn.active .icon {
-	filter: invert(1);
-}
-
 .fullwidth-toggle-btn .icon {
 	width: 16px;
 	height: 16px;
@@ -446,6 +467,95 @@ export default {
 
 .fullwidth-toggle-btn:hover .icon {
 	opacity: 1;
+}
+
+.view-toggle-btn {
+	background: transparent;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+	padding: 6px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	transition: background-color 0.2s ease;
+}
+
+.view-toggle-btn:hover {
+	background: var(--color-background-hover);
+}
+
+.view-toggle-btn.active {
+	background: var(--color-primary-element);
+	border-color: var(--color-primary-element);
+}
+
+
+.view-toggle-btn .icon {
+	width: 16px;
+	height: 16px;
+	opacity: 0.7;
+}
+
+.view-toggle-btn:hover .icon {
+	opacity: 1;
+}
+
+/* Grid view styles */
+.grid-view .filestable tbody {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 16px;
+	padding: 16px 0;
+}
+
+.grid-view table.filestable {
+	display: block;
+}
+
+.grid-view .filestable tbody tr {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background: var(--color-background-hover);
+	border-radius: var(--border-radius);
+	padding: 16px;
+	height: auto;
+	min-height: 200px;
+	border-bottom: none;
+	text-align: center;
+}
+
+.grid-view .filestable tbody tr td {
+	border-bottom: none;
+	padding: 4px 0;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.grid-view .filestable tbody tr td.filename {
+	order: 2;
+	flex-direction: column;
+}
+
+.grid-view .filestable tbody tr td.size {
+	order: 3;
+	font-size: 0.9em;
+	color: var(--color-text-maxcontrast);
+}
+
+.grid-view .filestable tbody tr td.modified {
+	order: 4;
+	font-size: 0.9em;
+	color: var(--color-text-maxcontrast);
+}
+
+.grid-view .filestable tbody tr .thumbnail-wrapper {
+	order: 1;
+	margin-bottom: 8px;
 }
 
 </style>
