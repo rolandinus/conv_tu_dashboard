@@ -6,12 +6,19 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;
 use OCP\Files\Folder;
 use OCP\Util;
+use OCP\IConfig;
+use OCP\AppFramework\Services\IInitialState;
 
 
 class PageController extends Controller {
 
-	public function __construct($AppName, IRequest $request){
+	private $config;
+	private $initialState;
+
+	public function __construct($AppName, IRequest $request, IConfig $config, IInitialState $initialState){
 		parent::__construct($AppName, $request);
+		$this->config = $config;
+		$this->initialState = $initialState;
 	}
 
 	/**
@@ -25,6 +32,12 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
+		// Get enable_gridview config value with fallback to false
+		$enableGridView = $this->config->getAppValue('tu_dashboard', 'enable_gridview', 'false');
+
+		// Provide the value to the frontend via initial state
+		$this->initialState->provideInitialState('enable_gridview', $enableGridView === 'true' || $enableGridView === '1');
+
 		try {
 			$favElements = $this->getFavoriteFilePaths(\OC::$server->getUserSession()->getUser()->getUID());
 		} catch (\RuntimeException $e) {

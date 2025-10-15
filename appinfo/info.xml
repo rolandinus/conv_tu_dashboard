@@ -2,8 +2,8 @@
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>tu_dashboard</id>
-    <name>TU Dashboard</name>
-    <summary>TU Dashboard</summary>
+    <name>Tuuls Dashboard</name>
+    <summary>Dashboard</summary>
     <description><![CDATA[TU Dashborad]]></description>
     <version>1.0.3</version>
     <licence>agpl</licence>
@@ -17,7 +17,7 @@
 
     <navigations>
         <navigation>
-            <name>TUDashboard</name>
+            <name>Dashboard</name>
             <route>tu_dashboard.page.index</route>
         </navigation>
     </navigations>

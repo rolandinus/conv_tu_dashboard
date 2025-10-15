@@ -29,7 +29,7 @@
 			</div>
 		</div>
 		<div id="main-content-container" style="padding: 15px; display: flex;">
-			<div style="padding: 15px; width: 100%; ">
+			<div v-show="!isSearchFullwidth" style="padding: 15px; width: 100%; ">
 				<h2>Favoriten</h2>
 				<div id="app-content-favorites" class="viewcontainer hide-hidden-files has-comments">
 					<FileList
@@ -44,7 +44,17 @@
 			</div>
 
 			<div style="padding: 15px; width: 100%; ">
-				<h2>Suchergebnis</h2>
+				<div style="display: flex; align-items: center; justify-content: space-between;">
+					<h2>Suchergebnis</h2>
+					<button
+						@click="toggleSearchFullwidth"
+						class="fullwidth-toggle-btn"
+						:class="{ active: isSearchFullwidth }"
+						:title="isSearchFullwidth ? 'Favoriten anzeigen' : 'Vollbild'"
+					>
+						<span class="icon" :class="isSearchFullwidth ? 'icon-view-previous' : 'icon-fullscreen'"></span>
+					</button>
+				</div>
 				<FileList
 					:items="items"
 					:state="searchState"
@@ -68,6 +78,7 @@ import { davGetClient, davRootPath, getFavoriteNodes } from '@nextcloud/files'
 import * as ncrouter from '@nextcloud/router'
 import { generateUrl, getAppRootUrl, generateFilePath} from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
+import { loadState } from '@nextcloud/initial-state'
 
 import FileList from './components/FileList'
 
@@ -75,6 +86,10 @@ import FileList from './components/FileList'
 
 const APP_ID = 'tu_dashboard'
 const appRootUrl = getAppRootUrl(APP_ID)
+
+// Load the enable_gridview setting from initial state
+const enableGridView = loadState('tu_dashboard', 'enable_gridview', false)
+console.log('enable_gridview setting:', enableGridView)
 
 const client = davGetClient()
 const favorites = await getFavoriteNodes(client)
@@ -102,6 +117,7 @@ export default {
 			systemTags: [],
 			submitArrowUrl: appRootUrl + '/img/arrow.svg',
 			userName: getCurrentUser().displayName,
+			isSearchFullwidth: false,
 
 		};
 	},
@@ -209,6 +225,9 @@ export default {
 					}
 				});
 			}
+		},
+		toggleSearchFullwidth() {
+			this.isSearchFullwidth = !this.isSearchFullwidth;
 		}
 	}
 }
@@ -392,5 +411,41 @@ export default {
 	object-fit: contain;
 }
 
+.fullwidth-toggle-btn {
+	background: transparent;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+	padding: 6px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	transition: background-color 0.2s ease;
+}
+
+.fullwidth-toggle-btn:hover {
+	background: var(--color-background-hover);
+}
+
+.fullwidth-toggle-btn.active {
+	background: var(--color-primary-element);
+	border-color: var(--color-primary-element);
+}
+
+.fullwidth-toggle-btn.active .icon {
+	filter: invert(1);
+}
+
+.fullwidth-toggle-btn .icon {
+	width: 16px;
+	height: 16px;
+	opacity: 0.7;
+}
+
+.fullwidth-toggle-btn:hover .icon {
+	opacity: 1;
+}
 
 </style>
