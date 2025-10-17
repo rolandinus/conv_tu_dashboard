@@ -32,14 +32,23 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		// Get enable_gridview config value with fallback to false
-		$enableGridView = $this->appConfig->getAppValueString('enable_gridview', 'false');
-		$enableTagAndOrSwitch = $this->appConfig->getAppValueString('enable_tag_and_or_switch', 'false');
-
+		$appSettings = $this->appConfig->getAllAppValues('', true); // get all settings at once to reduce DB queries
+		$enableGridView = $appSettings['enable_gridview'] ?? 'false';
+		$enableTagAndOrSwitch = $appSettings['enable_tag_and_or_switch'] ?? 'false';
+		$customHeaderImg = $appSettings['custom_header_img'] ?? '';
 
 		// Provide the value to the frontend via initial state
 		$this->initialState->provideInitialState('enable_gridview', (bool)$enableGridView );
 		$this->initialState->provideInitialState('enable_tag_and_or_switch', (bool)$enableTagAndOrSwitch);
+		$this->initialState->provideInitialState('custom_header_img', $customHeaderImg);
+		$this->initialState->provideInitialState('disable_favorites', (bool) ($appSettings['disable_favorites'] ?? false) );
+
+		Util::addStyle('tu_dashboard', 'style');
+
+		if (!empty($appSettings['custom_css_file'])) {
+			Util::addStyle($this->appName, $appSettings['custom_css_file']);
+		}
+
 
 		try {
 			$favElements = $this->getFavoriteFilePaths(\OC::$server->getUserSession()->getUser()->getUID());

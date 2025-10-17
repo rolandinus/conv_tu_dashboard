@@ -27,6 +27,16 @@
 						<span class="columntitle modified">Zuletzt geändert</span>
 					</div>
 				</th>
+				<th v-if="columns.includes('beschreibung')">
+					<div>
+						<span class="columntitle beschreibung">Beschreibung</span>
+					</div>
+				</th>
+				<th v-if="columns.includes('tags')">
+					<div>
+						<span class="columntitle tags">Tags</span>
+					</div>
+				</th>
 				<th v-if="columns.includes('info')">
 					<div>
 						<span class="columntitle info">Informationen</span>
@@ -60,6 +70,17 @@
 				<td class="modified" v-if="columns.includes('modified')">
                         <span class="nametext">
                             <span class="innernametext">{{ formatDate(item.mtime) }}</span>
+                        </span>
+				</td>
+				<td class="beschreibung" v-if="columns.includes('beschreibung')">
+                        <span class="nametext">
+                            <span class="innernametext">{{ formatDescription(item.info) }}</span>
+                        </span>
+				</td>
+				<td class="tags" v-if="columns.includes('tags')">
+                        <span class="nametext">
+                            <span v-if="!item.info || !item.info.systemtags || !Array.isArray(item.info.systemtags) || item.info.systemtags.length === 0" class="innernametext">-</span>
+                            <span v-else v-for="tag in item.info.systemtags" :key="tag" class="system-tag">{{ tag }}</span>
                         </span>
 				</td>
 				<td class="info" v-if="columns.includes('info')">
@@ -153,10 +174,22 @@ export default {
 
 			// Add DPI if both x and y resolution are available
 			if (info.xresolution && info.yresolution) {
-				parts.push(`DPI: ${info.xresolution} x ${info.yresolution}`)
+				let dpi = info.xresolution==info.yresolution ? `${info.xresolution}` : `${info.xresolution} x ${info.yresolution}`
+				parts.push(`DPI: ${info.xresolution} x ${dpi}`)
 			}
 
 			return parts.length > 0 ? parts.join('\n') : '-'
+		},
+		formatDescription(info) {
+			if (!info || !info.description) {
+				return '-'
+			}
+			const description = info.description
+			// Restrict to 200 characters
+			if (description.length > 200) {
+				return description.substring(0, 200) + '...'
+			}
+			return description
 		}
 	}
 }
@@ -170,5 +203,21 @@ export default {
 }
 .info-text {
 	white-space: pre-line;
+}
+.beschreibung {
+	max-width: 300px;
+}
+.beschreibung .nametext {
+	white-space: normal;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+.tags {
+	max-width: 300px;
+}
+.tags .nametext {
+	white-space: normal;
+	word-wrap: break-word;
+	overflow-wrap: anywhere;
 }
 </style>

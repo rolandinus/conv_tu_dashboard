@@ -2,7 +2,7 @@
 use OCP\Util;
 $appId = 'tu_dashboard';
 Util::addScript($appId, "$appId-main");
-style('tu_dashboard', 'style');
+
 ?>
 
 

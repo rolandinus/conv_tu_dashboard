@@ -18,6 +18,7 @@
 									  placeholder="Suche nach Tags"></v-select>
 
 							<span
+								v-if="enableTagAndOrSwitch"
 								class="tag-mode-toggle"
 								@click="tagMode = tagMode === 'and' ? 'or' : 'and'"
 								:title="tagMode === 'and' ?
@@ -41,7 +42,7 @@
 			</div>
 		</div>
 		<div id="main-content-container" style="padding: 15px; display: flex;">
-			<div v-show="!isSearchFullwidth" style="padding: 15px; width: 100%; ">
+			<div v-show="!isSearchFullwidth && !favoritesDisabled" style="padding: 15px; width: 100%; ">
 				<h2>Favoriten</h2>
 				<div id="app-content-favorites" class="viewcontainer hide-hidden-files has-comments">
 					<FileList
@@ -69,6 +70,7 @@
 							<span class="icon" v-html="isGridView ? formatListBulletedSquareIcon : viewGridIcon"></span>
 						</button>
 						<button
+							v-if="!favoritesDisabled"
 							@click="toggleSearchFullwidth"
 							class="fullwidth-toggle-btn"
 							:class="{ active: isSearchFullwidth }"
@@ -84,7 +86,7 @@
 					initialText="Führen Sie eine Suche aus"
 					loadingText="Suche läuft..."
 					emptyText="Keine Dateien oder Ordner gefunden"
-					:columns="['name', 'size', 'modified', 'info']"
+					:columns="['name', 'size', 'modified', 'beschreibung', 'tags', 'info']"
 					:class="{ 'grid-view': isGridView }"
 				/>
 			</div>
@@ -118,10 +120,23 @@ import FileList from './components/FileList'
 const APP_ID = 'tu_dashboard'
 const appRootUrl = getAppRootUrl(APP_ID)
 
-// Load the enable_gridview setting from initial state
-const enableGridView = loadState('tu_dashboard', 'enable_gridview', false)
-console.log('enable_gridview setting:', enableGridView)
 
+const enableGridView = loadState('tu_dashboard', 'enable_gridview', false)
+const enableTagAndOrSwitch = loadState('tu_dashboard', 'enable_tag_and_or_switch', true)
+const disableFavorites = loadState('tu_dashboard', 'disable_favorites', false)
+const customHeaderImg = loadState('tu_dashboard', 'custom_header_img', '')
+console.log('CUSTOM HEADER IMG', customHeaderImg)
+let backgroundUrl = '';
+if (!customHeaderImg) {
+	// Default: use conversory-tuuls-dam-header.jpg
+	backgroundUrl = generateFilePath('tu_dashboard','img', 'conversory-tuuls-dam-header.jpg');
+} else if (customHeaderImg === 'none') {
+	// No background
+	backgroundUrl = '';
+} else {
+	backgroundUrl = generateFilePath('tu_dashboard','img', customHeaderImg);
+}
+console.log('BACKGROUND URL', backgroundUrl)
 const client = davGetClient()
 const favorites = await getFavoriteNodes(client)
 console.log('FAVS', favorites)
@@ -135,7 +150,7 @@ export default {
 	},
 	data () {
 		return {
-			background: generateFilePath('tu_dashboard','img', 'conversory-tuuls-dam-header.jpg'),
+			background: backgroundUrl,
 			items: [],
 			favorites,
 			favoritesfolders: [],
@@ -146,11 +161,13 @@ export default {
 			tags: '',
 			selectedTags: [],
 			systemTags: [],
-			tagMode: 'and',
+					tagMode: 'and',
 			submitArrowUrl: appRootUrl + '/img/arrow.svg',
 			userName: getCurrentUser().displayName,
 			isSearchFullwidth: false,
 			enableGridView,
+			enableTagAndOrSwitch,
+			favoritesDisabled: disableFavorites,
 			isGridView: false,
 			viewGridIcon: ViewGridIcon,
 			formatListBulletedSquareIcon: FormatListBulletedSquareIcon,
@@ -575,8 +592,20 @@ export default {
 	color: var(--color-text-maxcontrast);
 }
 
-.grid-view .filestable tbody tr td.info {
+.grid-view .filestable tbody tr td.beschreibung {
 	order: 5;
+	font-size: 0.9em;
+	color: var(--color-text-maxcontrast);
+}
+
+.grid-view .filestable tbody tr td.tags {
+	order: 6;
+	font-size: 0.9em;
+	color: var(--color-text-maxcontrast);
+}
+
+.grid-view .filestable tbody tr td.info {
+	order: 7;
 	font-size: 0.9em;
 	color: var(--color-text-maxcontrast);
 }

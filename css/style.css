@@ -667,3 +667,19 @@ button.vs__deselect {
 	background-color: transparent;
 	background-image: url("../img/arrow.svg");
 }
+
+span.system-tag {
+	padding: 5px 10px;
+	border: 1px solid;
+	margin-right: 5px;
+	display: inline-block;
+	border-radius: var(--border-radius-pill);
+	border-color: var(--color-border);
+	color: var(--color-text-maxcontrast);
+	height: var(--min-size);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 20px;
+	text-align: center;
+}
