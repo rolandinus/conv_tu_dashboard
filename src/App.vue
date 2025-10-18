@@ -86,7 +86,7 @@
 					initialText="Führen Sie eine Suche aus"
 					loadingText="Suche läuft..."
 					emptyText="Keine Dateien oder Ordner gefunden"
-					:columns="['name', 'size', 'modified', 'beschreibung', 'tags', 'info']"
+					:columns="searchColumns"
 					:class="{ 'grid-view': isGridView }"
 				/>
 			</div>
@@ -125,6 +125,7 @@ const enableGridView = loadState('tu_dashboard', 'enable_gridview', false)
 const enableTagAndOrSwitch = loadState('tu_dashboard', 'enable_tag_and_or_switch', true)
 const disableFavorites = loadState('tu_dashboard', 'disable_favorites', false)
 const customHeaderImg = loadState('tu_dashboard', 'custom_header_img', '')
+const disabledColumns = loadState('tu_dashboard', 'disabled_columns', [])
 console.log('CUSTOM HEADER IMG', customHeaderImg)
 let backgroundUrl = '';
 if (!customHeaderImg) {
@@ -183,6 +184,10 @@ export default {
 			if (!this.searched) return 'initial'
 			if (this.searching) return 'loading'
 			return 'ready'
+		},
+		searchColumns() {
+			const allColumns = ['name', 'size', 'modified', 'beschreibung', 'tags', 'info']
+			return allColumns.filter(col => !disabledColumns.includes(col))
 		},
 		infoJSON: function () {
 			return this.items.map(function (item) {
