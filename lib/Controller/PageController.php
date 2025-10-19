@@ -33,8 +33,8 @@ class PageController extends Controller {
 	 */
 	public function index() {
 		$appSettings = $this->appConfig->getAllAppValues('', true); // get all settings at once to reduce DB queries
-		$enableGridView = $appSettings['enable_gridview'] ?? 'false';
-		$enableTagAndOrSwitch = $appSettings['enable_tag_and_or_switch'] ?? 'false';
+		$enableGridView = $appSettings['enable_gridview'] ?? false;
+		$enableTagAndOrSwitch = $appSettings['enable_tag_and_or_switch'] ?? false;
 		$customHeaderImg = $appSettings['custom_header_img'] ?? '';
 		$disabledColumns = $appSettings['disabled_columns'] ?? '';
 
@@ -50,7 +50,7 @@ class PageController extends Controller {
 		$this->initialState->provideInitialState('disable_favorites', (bool) ($appSettings['disable_favorites'] ?? false) );
 		$this->initialState->provideInitialState('disabled_columns', array_values($disabledColumnsArray));
 
-		Util::addStyle('tu_dashboard', 'style');
+		Util::addStyle($this->appName, 'style');
 
 		if (!empty($appSettings['custom_css_file'])) {
 			Util::addStyle($this->appName, $appSettings['custom_css_file']);
@@ -92,7 +92,7 @@ $currentCount= 0;
 												'favs' => $favElements,
 												'favoritesSublistArray' => $favoritesSublistArray
 											);
-    return new TemplateResponse('tu_dashboard', 'index', $parameters);  // templates/index.php
+    return new TemplateResponse($this->appName, 'index', $parameters);  // templates/index.php
 	}
 
 

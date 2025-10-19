@@ -4,7 +4,7 @@
     <id>tu_dashboard</id>
     <name>Tuuls Dashboard</name>
     <summary>Dashboard</summary>
-    <description><![CDATA[TU Dashborad]]></description>
+    <description><![CDATA[TUULS Dashboard]]></description>
     <version>1.0.3</version>
     <licence>agpl</licence>
     <author mail="markus@conversory.net" homepage="https://conversory.net">Markus Kroisenbrunner</author>

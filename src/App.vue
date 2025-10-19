@@ -121,21 +121,21 @@ const APP_ID = 'tu_dashboard'
 const appRootUrl = getAppRootUrl(APP_ID)
 
 
-const enableGridView = loadState('tu_dashboard', 'enable_gridview', false)
-const enableTagAndOrSwitch = loadState('tu_dashboard', 'enable_tag_and_or_switch', true)
-const disableFavorites = loadState('tu_dashboard', 'disable_favorites', false)
-const customHeaderImg = loadState('tu_dashboard', 'custom_header_img', '')
-const disabledColumns = loadState('tu_dashboard', 'disabled_columns', [])
+const enableGridView = loadState(APP_ID, 'enable_gridview', false)
+const enableTagAndOrSwitch = loadState(APP_ID, 'enable_tag_and_or_switch', true)
+const disableFavorites = loadState(APP_ID, 'disable_favorites', false)
+const customHeaderImg = loadState(APP_ID, 'custom_header_img', '')
+const disabledColumns = loadState(APP_ID, 'disabled_columns', [])
 console.log('CUSTOM HEADER IMG', customHeaderImg)
 let backgroundUrl = '';
 if (!customHeaderImg) {
 	// Default: use conversory-tuuls-dam-header.jpg
-	backgroundUrl = generateFilePath('tu_dashboard','img', 'conversory-tuuls-dam-header.jpg');
+	backgroundUrl = generateFilePath(APP_ID,'img', 'conversory-tuuls-dam-header.jpg');
 } else if (customHeaderImg === 'none') {
 	// No background
 	backgroundUrl = '';
 } else {
-	backgroundUrl = generateFilePath('tu_dashboard','img', customHeaderImg);
+	backgroundUrl = generateFilePath(APP_ID,'img', customHeaderImg);
 }
 console.log('BACKGROUND URL', backgroundUrl)
 const client = davGetClient()
@@ -144,7 +144,7 @@ console.log('FAVS', favorites)
 console.log('FILES', ncfiles)
 console.log('ROUTER', ncrouter)
 export default {
-	name: 'tu_dashboard',
+	name: APP_ID,
 	components: {
 		'v-select': vSelect,
 		FileList
