@@ -505,7 +505,6 @@ input.options_small {
 .thumbnail-wrapper .thumbnail {
 	display: inline-block;
 	width: auto; /* Changed from var(--thumbail-size) to auto */
-	max-width: none; /* Remove width constraint */
 	height: var(--thumbail-size);
 	background-size: contain;
 	margin: var(--thumbail-margin);
@@ -513,6 +512,7 @@ input.options_small {
 	cursor: pointer;
 	position: relative; /* Changed from absolute */
 	z-index: 4;
+	max-width: 300px;
 }
 
 .thumbnail-wrapper .thumbnail img {
@@ -587,6 +587,7 @@ td.size .nametext{
 .filestable td.col-thumbnail {
 	width: 1%; /* This will make it as narrow as possible while fitting content */
 	white-space: nowrap;
+	overflow: hidden;
 }
 
 .filestable td.filename {
@@ -683,3 +684,6 @@ span.system-tag {
 	line-height: 20px;
 	text-align: center;
 }
+ .grid-overlay {
+	 z-index: 5;
+ }

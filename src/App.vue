@@ -550,6 +550,73 @@ export default {
 	padding: 16px 0;
 }
 
+
+
+/* Thumbnail overlay - only visible in grid view */
+.thumbnail-overlay {
+	display: none;
+}
+
+.grid-view .thumbnail-overlay {
+	display: block;
+	position: absolute;
+	bottom: var(--thumbail-margin);
+	left: var(--thumbail-margin);
+	right: var(--thumbail-margin);
+	height: 75%;
+	max-height: calc(var(--thumbail-size) * 0.8);
+	background: var(--color-background-dark);
+	z-index: 5;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	overflow-y: auto;
+	overflow-x: hidden;
+	border-radius: var(--border-radius);
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+}
+
+.grid-view .thumbnail-overlay:hover {
+	opacity: 0.8;
+}
+
+.grid-view .overlay-content {
+	padding: 8px 10px;
+	color: white;
+	font-size: 0.8em;
+	line-height: 1.3;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.grid-view .overlay-field {
+	margin-bottom: 4px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	hyphens: auto;
+	width: 100%;
+}
+
+.grid-view .overlay-field:last-child {
+	margin-bottom: 0;
+}
+
+.grid-view .overlay-label {
+	font-weight: 600;
+	margin-right: 4px;
+	white-space: nowrap;
+}
+
+.grid-view .overlay-value {
+	color: rgba(255, 255, 255, 0.95);
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	white-space: normal;
+}
+
 .grid-view table.filestable {
 	display: block;
 }
@@ -617,6 +684,7 @@ export default {
 .grid-view .filestable tbody tr .thumbnail-wrapper {
 	order: 1;
 	margin-bottom: 8px;
+	position: relative;
 }
 
 /* Tag search wrapper with mode toggle */
@@ -671,5 +739,17 @@ export default {
 }
 
 
+/* Hide file info columns and table header in grid view */
+.grid-view .filestable  td.file-info {
+	display: none;
+}
+
+.grid-view .filestable thead {
+	display: none;
+}
+
+.grid-view a.thumbnail-link {
+	position: relative;
+}
 
 </style>

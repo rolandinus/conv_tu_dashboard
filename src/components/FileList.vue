@@ -47,37 +47,68 @@
 			<tbody class=".fileList">
 			<tr v-for="(item, index) in items" :key="item.fileid || index">
 				<td class="col-thumbnail">
-					<a class="name" :href="generateFileUrl(item)" target="_blank">
+					<a class="name thumbnail-link" :href="generateFileUrl(item)" target="_blank">
 						<div class="thumbnail-wrapper">
 							<div class="thumbnail" v-html="generateThumbnail(item)">
+							</div>
+						</div>
+						<div class="thumbnail-overlay">
+							<div class="overlay-content">
+								<div class="overlay-field">
+									<span class="overlay-label">Name:</span>
+									<span class="overlay-value">{{ item.displayname }}</span>
+								</div>
+								<div v-if="columns.includes('size')" class="overlay-field">
+									<span class="overlay-label">Größe:</span>
+									<span class="overlay-value">{{ humanFileSize(item.size) }}</span>
+								</div>
+								<div v-if="columns.includes('modified')" class="overlay-field">
+									<span class="overlay-label">Zuletzt geändert:</span>
+									<span class="overlay-value">{{ formatDate(item.mtime) }}</span>
+								</div>
+								<div v-if="columns.includes('beschreibung')" class="overlay-field">
+									<span class="overlay-label">Beschreibung:</span>
+									<span class="overlay-value">{{ formatDescription(item.info) }}</span>
+								</div>
+								<div v-if="columns.includes('tags')" class="overlay-field">
+									<span class="overlay-label">Tags:</span>
+									<span class="overlay-value">
+											<span v-if="!item.info || !item.info.systemtags || !Array.isArray(item.info.systemtags) || item.info.systemtags.length === 0">-</span>
+											<span v-else>{{ item.info.systemtags.join(', ') }}</span>
+										</span>
+								</div>
+								<div v-if="columns.includes('info')" class="overlay-field">
+									<span class="overlay-label">Informationen:</span>
+									<span class="overlay-value">{{ formatInfo(item.info) }}</span>
+								</div>
 							</div>
 						</div>
 					</a>
 				</td>
 
-				<td class="filename">
+				<td class="filename file-info">
 					<a class="name" :href="generateFileUrl(item)" target="_blank">
 						<span class="nametext">
                                 <span class="innernametext">{{ item.displayname }}</span>
                             </span>
 					</a>
 				</td>
-				<td class="size" v-if="columns.includes('size')">
+				<td class="size file-info" v-if="columns.includes('size')">
                         <span class="nametext">
                             <span class="innernametext">{{ humanFileSize(item.size) }}</span>
                         </span>
 				</td>
-				<td class="modified" v-if="columns.includes('modified')">
+				<td class="modified file-info" v-if="columns.includes('modified')">
                         <span class="nametext">
                             <span class="innernametext">{{ formatDate(item.mtime) }}</span>
                         </span>
 				</td>
-				<td class="beschreibung" v-if="columns.includes('beschreibung')">
+				<td class="beschreibung file-info" v-if="columns.includes('beschreibung')">
                         <span class="nametext">
                             <span class="innernametext">{{ formatDescription(item.info) }}</span>
                         </span>
 				</td>
-				<td class="tags" v-if="columns.includes('tags')">
+				<td class="tags file-info" v-if="columns.includes('tags')">
                         <span class="nametext">
                             <span v-if="!item.info || !item.info.systemtags || !Array.isArray(item.info.systemtags) || item.info.systemtags.length === 0" class="innernametext">-</span>
                             <span v-else>
@@ -85,7 +116,7 @@
 							</span>
                         </span>
 				</td>
-				<td class="info" v-if="columns.includes('info')">
+				<td class="info file-info" v-if="columns.includes('info')">
                         <span class="nametext">
                             <span class="innernametext info-text">{{ formatInfo(item.info) }}</span>
                         </span>
@@ -221,5 +252,8 @@ export default {
 	white-space: normal;
 	word-wrap: break-word;
 	overflow-wrap: anywhere;
+}
+.thumbnail {
+	max-width: 300px;
 }
 </style>
