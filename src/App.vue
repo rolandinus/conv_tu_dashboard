@@ -24,7 +24,7 @@
 								:title="tagMode === 'and' ?
 								'UND-Modus: Alle Tags müssen vorhanden sein. ' : 'ODER-Modus: Mindestens ein Tag muss vorhanden sein.'" >
 							<span class="toggle-label">UND</span>
-							<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOutline : toggleSwitchOffOutline"></span>
+							<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOffOutline : toggleSwitchOutline"></span>
 							<span class="toggle-label">ODER</span>
 						</span>
 						</div>
@@ -96,8 +96,7 @@
 </template>
 
 <script>
-console.log('APP tu dash')
-// import BruteForceItem from './components/BruteForceItem'
+
 import vSelect from 'vue-select'
 import * as ncfiles from "@nextcloud/files"
 import { davGetClient, davRootPath, getFavoriteNodes } from '@nextcloud/files'
@@ -117,7 +116,7 @@ import FileList from './components/FileList'
 
 
 
-const APP_ID = 'tu_dashboard'
+const APP_ID = 'tuuls_dashboard'
 const appRootUrl = getAppRootUrl(APP_ID)
 
 
@@ -414,7 +413,7 @@ export default {
 }
 
 
-.app-tu_dashboard .search-term-container input#meta-term {
+.app-tuuls_dashboard .search-term-container input#meta-term {
 	min-width: 100%;
 	height: 40px;
 	margin: 0 5px 0 0;
@@ -423,7 +422,7 @@ export default {
 	border: none;
 }
 
-.app-tu_dashboard .search-term-container button.btn-search {
+.app-tuuls_dashboard .search-term-container button.btn-search {
 	border: 1px solid var(--color-uni-accent-color, #245B78);
 	background: var(--color-uni-accent-color, #245B78);
 	border-radius: 0;
@@ -436,13 +435,13 @@ export default {
 	justify-content: center;
 }
 
-.app-tu_dashboard .search-term-container > * {
+.app-tuuls_dashboard .search-term-container > * {
 	width: 100%;
 	margin-bottom: 10px !important;
 	max-width: unset;
 }
 
-.app-tu_dashboard .search-term-container button.btn-search .arrow {
+.app-tuuls_dashboard .search-term-container button.btn-search .arrow {
 	width: 30px;
 	height: 24px;
 	background-size: contain;
@@ -452,20 +451,20 @@ export default {
 	background-position: center right;
 }
 
-.app-tu_dashboard #filestable #fileList tr td {
+.app-tuuls_dashboard #filestable #fileList tr td {
 	border-bottom: none;
 }
 
-.app-tu_dashboard #filestable #fileList tr td:not(:first-of-type) {
+.app-tuuls_dashboard #filestable #fileList tr td:not(:first-of-type) {
 	padding-left: 1em;
 }
 
-.app-tu_dashboard #filestable #fileList .thumbnail {
+.app-tuuls_dashboard #filestable #fileList .thumbnail {
 	display: grid;
 	place-items: center;
 }
 
-.app-tu_dashboard #filestable #fileList .thumbnail img {
+.app-tuuls_dashboard #filestable #fileList .thumbnail img {
 	width: 100%;
 	max-height: 64px;
 	object-fit: contain;

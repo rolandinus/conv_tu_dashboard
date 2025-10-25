@@ -1,6 +1,6 @@
 <?php
 use OCP\Util;
-$appId = 'tu_dashboard';
+$appId = 'tuuls_dashboard';
 Util::addScript($appId, "$appId-main");
 
 ?>

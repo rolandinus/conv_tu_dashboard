@@ -1,12 +1,12 @@
 <?php
 
-namespace OCA\Tu_Dashboard\Tests\Unit\Controller;
+namespace OCA\Tuuls_Dashboard\Tests\Unit\Controller;
 
 use PHPUnit_Framework_TestCase;
 
 use OCP\AppFramework\Http\TemplateResponse;
 
-use OCA\Tu_Dashboard\Controller\PageController;
+use OCA\Tuuls_Dashboard\Controller\PageController;
 
 
 class PageControllerTest extends PHPUnit_Framework_TestCase {
@@ -17,7 +17,7 @@ class PageControllerTest extends PHPUnit_Framework_TestCase {
 		$request = $this->getMockBuilder('OCP\IRequest')->getMock();
 
 		$this->controller = new PageController(
-			'tu_dashboard', $request, $this->userId
+			'tuuls_dashboard', $request, $this->userId
 		);
 	}
 

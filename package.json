@@ -1,7 +1,7 @@
 {
-  "name": "tu_dashboard",
+  "name": "tuuls_dashboard",
   "version": "1.0.0",
-  "description": "TU Dashborad",
+  "description": "TUULS Dashborad",
   "author": "Markus Kroisenbrunner <markus@conversory.net>",
   "license": "MIT",
   "main": "main.js",

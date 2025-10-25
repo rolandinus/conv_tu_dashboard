@@ -1,5 +1,5 @@
 <?php
-namespace OCA\Tu_Dashboard\Controller;
+namespace OCA\Tuuls_Dashboard\Controller;
 
 use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;

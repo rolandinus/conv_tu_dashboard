@@ -80,7 +80,9 @@
 				<td class="tags" v-if="columns.includes('tags')">
                         <span class="nametext">
                             <span v-if="!item.info || !item.info.systemtags || !Array.isArray(item.info.systemtags) || item.info.systemtags.length === 0" class="innernametext">-</span>
-                            <span v-else v-for="tag in item.info.systemtags" :key="tag" class="system-tag">{{ tag }}</span>
+                            <span v-else>
+							<span v-for="tag in item.info.systemtags" :key="tag" class="system-tag">{{ tag }}</span>
+							</span>
                         </span>
 				</td>
 				<td class="info" v-if="columns.includes('info')">

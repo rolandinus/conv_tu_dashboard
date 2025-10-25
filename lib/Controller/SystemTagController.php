@@ -6,7 +6,7 @@
  * Time: 15:59
  */
 
-namespace OCA\Tu_Dashboard\Controller;
+namespace OCA\Tuuls_Dashboard\Controller;
 
 use OCP\IRequest;
 use OCP\AppFramework\Controller;

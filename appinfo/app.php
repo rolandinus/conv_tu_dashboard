@@ -1,4 +1,4 @@
 <?php
-$app = new \OCA\Tu_Dashboard\AppInfo\Application();
+$app = new \OCA\Tuuls_Dashboard\AppInfo\Application();
 
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Tu_Dashboard\Tests\Integration\Controller;
+namespace OCA\Tuuls_Dashboard\Tests\Integration\Controller;
 
 use OCP\AppFramework\App;
 use Test\TestCase;
@@ -17,13 +17,13 @@ class AppTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $app = new App('tu_dashboard');
+        $app = new App('tuuls_dashboard');
         $this->container = $app->getContainer();
     }
 
     public function testAppInstalled() {
         $appManager = $this->container->query('OCP\App\IAppManager');
-        $this->assertTrue($appManager->isInstalled('tu_dashboard'));
+        $this->assertTrue($appManager->isInstalled('tuuls_dashboard'));
     }
 
 }
