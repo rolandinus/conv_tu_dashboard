@@ -13,6 +13,8 @@
 #main-content-container {
 	background-color: var(--color-main-background);
 	min-height: 500px;
+	width: max-content;
+	min-width: 100%;
 }
 .files_header {
 	height: 50px;
@@ -395,6 +397,70 @@ input.options_small {
 }
 
 
+.app-tuuls_dashboard .search-term-container input#meta-term {
+	min-width: 100%;
+	height: 40px;
+	margin: 0 5px 0 0;
+	font-size: 18px !important;
+	outline: none;
+	border: none;
+}
+
+.app-tuuls_dashboard .search-term-container button.btn-search {
+	border: 1px solid var(--color-uni-accent-color, #245B78);
+	background: var(--color-uni-accent-color, #245B78);
+	border-radius: 0;
+	font-weight: 400;
+	padding: 6px 28px;
+	color: white;
+	font-size: 18px !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.app-tuuls_dashboard .search-term-container > * {
+	width: 100%;
+	margin-bottom: 10px !important;
+	max-width: unset;
+}
+
+.app-tuuls_dashboard .search-term-container button.btn-search .arrow {
+	width: 30px;
+	height: 24px;
+	background-size: contain;
+	z-index: 1000;
+	display: block;
+	background-repeat: no-repeat;
+	background-position: center right;
+}
+
+.btn-search {
+	color: white;
+	background: var(--color-primary);
+	border: 1px solid var(--color-primary);
+	width: 30px;
+	height: 40px;
+	margin: 0;
+	position: relative;
+}
+
+.btn-search:active {
+	background: var(--color-primary) !important;
+	border: 1px solid var(--color-primary) !important;
+}
+
+.btn-search .arrow {
+	position: absolute;
+	left: 60%;
+	top: 50%;
+	width: 50%;
+	height: 50%;
+	background-repeat: no-repeat;
+	background-size: contain;
+	transform: translate(-50%, -50%);
+}
+
 
 
 .icon-container {
@@ -504,15 +570,16 @@ input.options_small {
 
 .thumbnail-wrapper .thumbnail {
 	display: inline-block;
-	width: auto; /* Changed from var(--thumbail-size) to auto */
+	width: auto;
 	height: var(--thumbail-size);
 	background-size: contain;
 	margin: var(--thumbail-margin);
 	border-radius: var(--border-radius);
 	cursor: pointer;
-	position: relative; /* Changed from absolute */
+	position: relative;
 	z-index: 4;
-	max-width: 300px;
+	max-width: 320px;
+	overflow: hidden;
 }
 
 .thumbnail-wrapper .thumbnail img {

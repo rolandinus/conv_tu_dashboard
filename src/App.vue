@@ -42,7 +42,7 @@
 			</div>
 		</div>
 		<div id="main-content-container" style="padding: 15px; display: flex;">
-			<div v-show="!isSearchFullwidth && !favoritesDisabled" style="padding: 15px; width: 100%; ">
+			<div v-show="!isSearchFullwidth && !favoritesDisabled" style="padding: 15px; width: 100%; max-width: 450px; ">
 				<h2>Favoriten</h2>
 				<div id="app-content-favorites" class="viewcontainer hide-hidden-files has-comments">
 					<FileList
@@ -57,9 +57,9 @@
 			</div>
 
 			<div style="padding: 15px; width: 100%; ">
-				<div style="display: flex; align-items: center; justify-content: space-between;">
+				<div style="display: flex; align-items: center; justify-content: start;">
 					<h2>Suchergebnis</h2>
-					<div style="display: flex; gap: 8px;">
+					<div style="display: flex; gap: 8px; margin-left: 1.5em">
 						<button
 							v-if="enableGridView"
 							@click="toggleGridView"
@@ -299,31 +299,6 @@ export default {
 </script>
 
 <style>
-.btn-search {
-	color: white;
-	background: var(--color-primary);
-	border: 1px solid var(--color-primary);
-	width: 30px;
-	height: 40px;
-	margin: 0;
-	position: relative;
-}
-
-.btn-search:active {
-	background: var(--color-primary) !important;
-	border: 1px solid var(--color-primary) !important;
-}
-
-.btn-search .arrow {
-	position: absolute;
-	left: 60%;
-	top: 50%;
-	width: 50%;
-	height: 50%;
-	background-repeat: no-repeat;
-	background-size: contain;
-	transform: translate(-50%, -50%);
-}
 
 .search-term-container {
 	display: flex;
@@ -413,43 +388,6 @@ export default {
 }
 
 
-.app-tuuls_dashboard .search-term-container input#meta-term {
-	min-width: 100%;
-	height: 40px;
-	margin: 0 5px 0 0;
-	font-size: 18px !important;
-	outline: none;
-	border: none;
-}
-
-.app-tuuls_dashboard .search-term-container button.btn-search {
-	border: 1px solid var(--color-uni-accent-color, #245B78);
-	background: var(--color-uni-accent-color, #245B78);
-	border-radius: 0;
-	font-weight: 400;
-	padding: 6px 28px;
-	color: white;
-	font-size: 18px !important;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.app-tuuls_dashboard .search-term-container > * {
-	width: 100%;
-	margin-bottom: 10px !important;
-	max-width: unset;
-}
-
-.app-tuuls_dashboard .search-term-container button.btn-search .arrow {
-	width: 30px;
-	height: 24px;
-	background-size: contain;
-	z-index: 1000;
-	display: block;
-	background-repeat: no-repeat;
-	background-position: center right;
-}
 
 .app-tuuls_dashboard #filestable #fileList tr td {
 	border-bottom: none;
@@ -546,7 +484,7 @@ export default {
 .grid-view .filestable tbody {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	gap: 16px;
+	gap: 8px;
 	padding: 16px 0;
 }
 
@@ -560,7 +498,7 @@ export default {
 .grid-view .thumbnail-overlay {
 	display: block;
 	position: absolute;
-	bottom: var(--thumbail-margin);
+	bottom: 0.5em;
 	left: var(--thumbail-margin);
 	right: var(--thumbail-margin);
 	height: 75%;
@@ -573,8 +511,8 @@ export default {
 	overflow-x: hidden;
 	border-radius: var(--border-radius);
 	box-sizing: border-box;
-	width: 100%;
-	max-width: 100%;
+	width: 98%;
+	max-width: 98%;
 }
 
 .grid-view .thumbnail-overlay:hover {
@@ -583,7 +521,7 @@ export default {
 
 .grid-view .overlay-content {
 	padding: 8px 10px;
-	color: white;
+	color: var(--color-primary-text);
 	font-size: 0.8em;
 	line-height: 1.3;
 	width: 100%;
@@ -610,11 +548,14 @@ export default {
 }
 
 .grid-view .overlay-value {
-	color: rgba(255, 255, 255, 0.95);
+	color: var(--color-primary-text);
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	word-break: break-word;
 	white-space: normal;
+}
+.grid-view .overlay-label {
+	font-weight: bold;
 }
 
 .grid-view table.filestable {
@@ -628,7 +569,7 @@ export default {
 	align-items: center;
 	background: var(--color-background-hover);
 	border-radius: var(--border-radius);
-	padding: 16px;
+	padding: 8px 0 8px 0;
 	height: auto;
 	min-height: 200px;
 	border-bottom: none;
@@ -685,6 +626,7 @@ export default {
 	order: 1;
 	margin-bottom: 8px;
 	position: relative;
+	text-align: center;
 }
 
 /* Tag search wrapper with mode toggle */
