@@ -1,173 +1,223 @@
-
 <template>
-	<div id="tu-dashboard" class="">
-		<div class="hero-image"
-			 :style="{'background-image': 'url(' + background + ')'}">
-			<div class="hero-text">
-				<form @submit.prevent="search">
-					<a href="#"><h2 class="welcomeText">Willkommen {{
-							userName
-						}}!</h2></a>
-					<div class="search-term-container">
-						<input type="text" id="term" name="term"
-							   placeholder="Suche nach Dateien" v-model="term">
-						<div class="tag-search-wrapper">
-							<v-select id="select-search-tags" :options="systemTags"
-									  v-model="selectedTags" class="style-chooser"
-									  multiple
-									  placeholder="Suche nach Tags"></v-select>
+	<NcAppContent
+		app-name="tuuls_dashboard"
+		layout="no-split"
+		:page-heading="pageHeading"
+	>
+		<NcContent app-name="tuuls_dashboard">
+			<div class="tu-dashboard">
+				<section
+					class="tu-dashboard__hero"
+					:class="{ 'tu-dashboard__hero--with-background': hasBackground }"
+					:style="heroStyle"
+				>
+					<div class="tu-dashboard__hero-body">
+						<h2 id="tu-dashboard-hero-heading" class="tu-dashboard__welcome">
+							{{ welcomeHeadline }}
+						</h2>
+						<form
+							class="tu-dashboard__form"
+							aria-labelledby="tu-dashboard-hero-heading"
+							@submit.prevent="search"
+						>
+								<NcTextField
+									v-model="term"
+									type="search"
+									input-id="tu-dashboard-term"
+									label="Suche nach Dateien"
+									:disabled="searching"
+									clearable
+								/>
+							<div class="tu-dashboard__form-row">
+								<div class="tu-dashboard__select-wrapper">
+									<NcSelect
+										v-model="selectedTags"
+										multiple
+										input-id="tu-dashboard-tags"
+										:options="systemTags"
+										placeholder="Suche nach Tags"
+										input-label="Suche nach Tags"
+										:disabled="!systemTags.length"
+									/>
+								</div>
+								<button
+									v-if="enableTagAndOrSwitch"
+									class="tag-mode-toggle tu-dashboard__tag-mode"
+									role="switch"
+									:aria-checked="tagMode === 'and'"
+									:aria-label="tagModeAriaLabel"
+									type="button"
+									@click="toggleTagMode"
+								>
+									<span class="toggle-label" :class="{ 'is-active': tagMode === 'and' }">UND</span>
+									<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOffOutline : toggleSwitchOutline"></span>
+									<span class="toggle-label" :class="{ 'is-active': tagMode === 'or' }">ODER</span>
+								</button>
+							</div>
+								<NcTextField
+									v-model="metaTerm"
+									input-id="tu-dashboard-meta-term"
+									label="Suche in Metadata"
+									:disabled="searching"
+									clearable
+								/>
+								<NcButton
+									variant="primary"
+									native-type="submit"
+									class="tu-dashboard__submit"
+									:disabled="isSearchDisabled"
+								>
+									Suchen
+								</NcButton>
+						</form>
+					</div>
+				</section>
 
-							<span
-								v-if="enableTagAndOrSwitch"
-								class="tag-mode-toggle"
-								@click="tagMode = tagMode === 'and' ? 'or' : 'and'"
-								:title="tagMode === 'and' ?
-								'UND-Modus: Alle Tags müssen vorhanden sein. ' : 'ODER-Modus: Mindestens ein Tag muss vorhanden sein.'" >
-							<span class="toggle-label">UND</span>
-							<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOffOutline : toggleSwitchOutline"></span>
-							<span class="toggle-label">ODER</span>
-						</span>
+				<section class="tu-dashboard__content" :class="{ 'tu-dashboard__content--full': isSearchFullwidth || favoritesDisabled }">
+					<aside
+						v-if="!favoritesDisabled && !isSearchFullwidth"
+						class="tu-dashboard__favorites"
+						aria-labelledby="tu-dashboard-favorites-heading"
+					>
+						<h3 id="tu-dashboard-favorites-heading" class="tu-dashboard__section-title">
+							Favoriten
+						</h3>
+						<FileList
+							:items="favorites"
+							:state="favoritesState"
+							initialText="Initialisiere Favoriten..."
+							loadingText="Lade Favoriten..."
+							emptyText="Noch keine Favoriten vorhanden"
+							:columns="['name']"
+							class="tu-dashboard__list tu-dashboard__list--favorites"
+						/>
+					</aside>
+
+					<div class="tu-dashboard__results" aria-labelledby="tu-dashboard-results-heading">
+						<div class="tu-dashboard__results-header">
+							<h3 id="tu-dashboard-results-heading" class="tu-dashboard__section-title">
+								Suchergebnis
+							</h3>
+							<div class="tu-dashboard__actions">
+								<NcButton
+									v-if="enableGridView"
+									variant="tertiary"
+									native-type="button"
+									size="small"
+									class="tu-dashboard__action"
+									:aria-pressed="isGridView"
+									:aria-label="isGridView ? 'Listenansicht' : 'Rasteransicht'"
+									@click="toggleGridView"
+								>
+									<template #icon>
+										<NcIconSvgWrapper :svg="isGridView ? formatListBulletedSquareIcon : viewGridIcon" />
+									</template>
+								</NcButton>
+								<NcButton
+									v-if="!favoritesDisabled"
+									variant="tertiary"
+									native-type="button"
+									size="small"
+									class="tu-dashboard__action"
+									:aria-pressed="isSearchFullwidth"
+									:aria-label="isSearchFullwidth ? 'Favoriten anzeigen' : 'Vollbild'"
+									@click="toggleSearchFullwidth"
+								>
+									<template #icon>
+										<NcIconSvgWrapper :svg="isSearchFullwidth ? fullscreenExitIcon : fullscreenIcon" />
+									</template>
+								</NcButton>
+							</div>
 						</div>
-						<input type="text" id="meta-term" name="meta-term"
-							   placeholder="Suche in Metadata"
-							   v-model="metaTerm">
-						<button @click="search" class="btn-search">
-							Suchen
-							<div @click.stop.prevent="search" class="arrow"
-								 id="search-arrow"
-								 :style="{'background-image':'url('+submitArrowUrl+')'}"></div>
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-		<div id="main-content-container" style="padding: 15px; display: flex;">
-			<div v-show="!isSearchFullwidth && !favoritesDisabled" style="padding: 15px; width: 100%; max-width: 450px; ">
-				<h2>Favoriten</h2>
-				<div id="app-content-favorites" class="viewcontainer hide-hidden-files has-comments">
-					<FileList
-						:items="favorites"
-						state="ready"
-						initialText="Initialisiere Favoriten..."
-						loadingText="Lade Favoriten..."
-						emptyText="Noch keine Favoriten vorhanden"
-						:columns="['name', ]"
-					/>
-				</div>
-			</div>
 
-			<div style="padding: 15px; width: 100%; ">
-				<div style="display: flex; align-items: center; justify-content: start;">
-					<h2>Suchergebnis</h2>
-					<div style="display: flex; gap: 8px; margin-left: 1.5em">
-						<button
-							v-if="enableGridView"
-							@click="toggleGridView"
-							class="view-toggle-btn"
-							:class="{ active: isGridView }"
-							:title="isGridView ? 'Listenansicht' : 'Rasteransicht'"
-						>
-							<span class="icon" v-html="isGridView ? formatListBulletedSquareIcon : viewGridIcon"></span>
-						</button>
-						<button
-							v-if="!favoritesDisabled"
-							@click="toggleSearchFullwidth"
-							class="fullwidth-toggle-btn"
-							:class="{ active: isSearchFullwidth }"
-							:title="isSearchFullwidth ? 'Favoriten anzeigen' : 'Vollbild'"
-						>
-							<span class="icon" v-html="isSearchFullwidth ? fullscreenExitIcon : fullscreenIcon"></span>
-						</button>
+						<FileList
+							:items="items"
+							:state="searchState"
+							initialText="Führen Sie eine Suche aus"
+							loadingText="Suche läuft..."
+							emptyText="Keine Dateien oder Ordner gefunden"
+							:columns="searchColumns"
+							:grid="isGridView"
+							class="tu-dashboard__list"
+						/>
 					</div>
-				</div>
-				<FileList
-					:items="items"
-					:state="searchState"
-					initialText="Führen Sie eine Suche aus"
-					loadingText="Suche läuft..."
-					emptyText="Keine Dateien oder Ordner gefunden"
-					:columns="searchColumns"
-					:class="{ 'grid-view': isGridView }"
-				/>
+				</section>
 			</div>
-
-		</div>
-	</div>
+		</NcContent>
+	</NcAppContent>
 </template>
 
 <script>
+import NcAppContent from '@nextcloud/vue/dist/Components/NcAppContent.js'
+import NcContent from '@nextcloud/vue/dist/Components/NcContent.js'
+import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
+import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
+import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
 
-import vSelect from 'vue-select'
-import * as ncfiles from "@nextcloud/files"
-import { davGetClient, davRootPath, getFavoriteNodes } from '@nextcloud/files'
-import * as ncrouter from '@nextcloud/router'
-import { generateUrl, getAppRootUrl, generateFilePath} from '@nextcloud/router'
+import axios from '@nextcloud/axios'
+import { davGetClient, getFavoriteNodes } from '@nextcloud/files'
+import { generateFilePath, generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
+
 import ViewGridIcon from '@mdi/svg/svg/view-grid.svg?raw'
 import FormatListBulletedSquareIcon from '@mdi/svg/svg/format-list-bulleted-square.svg?raw'
 import FullscreenIcon from '@mdi/svg/svg/fullscreen.svg?raw'
 import FullscreenExitIcon from '@mdi/svg/svg/fullscreen-exit.svg?raw'
-// import switch icon
-import ToggleSwitchOutline from '@mdi/svg/svg/toggle-switch-outline.svg?raw';
-import ToggleSwitchOffOutline from '@mdi/svg/svg/toggle-switch-off-outline.svg?raw';
+import ToggleSwitchOutline from '@mdi/svg/svg/toggle-switch-outline.svg?raw'
+import ToggleSwitchOffOutline from '@mdi/svg/svg/toggle-switch-off-outline.svg?raw'
 
 import FileList from './components/FileList'
 
-
-
 const APP_ID = 'tuuls_dashboard'
-const appRootUrl = getAppRootUrl(APP_ID)
 
-
-const enableGridView = loadState(APP_ID, 'enable_gridview', false)
-const enableTagAndOrSwitch = loadState(APP_ID, 'enable_tag_and_or_switch', true)
-const disableFavorites = loadState(APP_ID, 'disable_favorites', false)
+const enableGridViewState = true;// loadState(APP_ID, 'enable_gridview', false)
+const enableTagAndOrSwitchState = true;// loadState(APP_ID, 'enable_tag_and_or_switch', true)
+const disableFavoritesState = loadState(APP_ID, 'disable_favorites', false)
 const customHeaderImg = loadState(APP_ID, 'custom_header_img', '')
-const disabledColumns = loadState(APP_ID, 'disabled_columns', [])
-console.log('CUSTOM HEADER IMG', customHeaderImg)
-let backgroundUrl = '';
+const disabledColumnsState = loadState(APP_ID, 'disabled_columns', [])
+
+let backgroundUrl = ''
 if (!customHeaderImg) {
-	// Default: use conversory-tuuls-dam-header.jpg
-	backgroundUrl = generateFilePath(APP_ID,'img', 'conversory-tuuls-dam-header.jpg');
+	backgroundUrl = generateFilePath(APP_ID, 'img', 'conversory-tuuls-dam-header.jpg')
 } else if (customHeaderImg === 'none') {
-	// No background
-	backgroundUrl = '';
+	backgroundUrl = ''
 } else {
-	backgroundUrl = generateFilePath(APP_ID,'img', customHeaderImg);
+	backgroundUrl = generateFilePath(APP_ID, 'img', customHeaderImg)
 }
-console.log('BACKGROUND URL', backgroundUrl)
+
 const client = davGetClient()
-const favorites = await getFavoriteNodes(client)
-console.log('FAVS', favorites)
-console.log('FILES', ncfiles)
-console.log('ROUTER', ncrouter)
+
 export default {
 	name: APP_ID,
 	components: {
-		'v-select': vSelect,
-		FileList
+		NcAppContent,
+		NcContent,
+		NcButton,
+		NcTextField,
+		NcSelect,
+		NcIconSvgWrapper,
+		FileList,
 	},
-	data () {
+	data() {
 		return {
 			background: backgroundUrl,
 			items: [],
-			favorites,
-			favoritesfolders: [],
+			favorites: [],
+			favoritesState: 'loading',
 			term: '',
 			metaTerm: '',
 			searching: false,
 			searched: false,
-			tags: '',
 			selectedTags: [],
 			systemTags: [],
-					tagMode: 'and',
-			submitArrowUrl: appRootUrl + '/img/arrow.svg',
+			tagMode: 'and',
 			userName: getCurrentUser().displayName,
 			isSearchFullwidth: false,
-			enableGridView,
-			enableTagAndOrSwitch,
-			favoritesDisabled: disableFavorites,
+			enableGridView: enableGridViewState,
+			enableTagAndOrSwitch: enableTagAndOrSwitchState,
+			favoritesDisabled: disableFavoritesState,
 			isGridView: false,
 			viewGridIcon: ViewGridIcon,
 			formatListBulletedSquareIcon: FormatListBulletedSquareIcon,
@@ -175,523 +225,384 @@ export default {
 			fullscreenExitIcon: FullscreenExitIcon,
 			toggleSwitchOutline: ToggleSwitchOutline,
 			toggleSwitchOffOutline: ToggleSwitchOffOutline,
-
-		};
+			disabledColumns: disabledColumnsState,
+		}
 	},
 	computed: {
+		pageHeading() {
+			return 'Dashboard'
+		},
+		welcomeHeadline() {
+			return `Willkommen ${this.userName}!`
+		},
+		heroStyle() {
+			if (!this.background) {
+				return {}
+			}
+			return {
+				'--tu-dashboard-hero-image': `url(${this.background})`,
+			}
+		},
+		hasBackground() {
+			return Boolean(this.background)
+		},
+		tagModeAriaLabel() {
+			return this.tagMode === 'and'
+				? 'Tagfilter im UND-Modus. Aktivieren Sie zum Wechsel in den ODER-Modus.'
+				: 'Tagfilter im ODER-Modus. Aktivieren Sie zum Wechsel in den UND-Modus.'
+		},
 		searchState() {
-			if (!this.searched) return 'initial'
-			if (this.searching) return 'loading'
+			if (!this.searched) {
+				return 'initial'
+			}
+			if (this.searching) {
+				return 'loading'
+			}
 			return 'ready'
 		},
 		searchColumns() {
 			const allColumns = ['name', 'size', 'modified', 'beschreibung', 'tags', 'info']
-			return allColumns.filter(col => !disabledColumns.includes(col))
+			return allColumns.filter(col => !this.disabledColumns.includes(col))
 		},
-		infoJSON: function () {
-			return this.items.map(function (item) {
-				return JSON.stringify(item.info);
-			});
-		},
-		entryJSON: function () {
-			return this.items.map(function (item) {
-				return JSON.stringify(item);
-			});
+		isSearchDisabled() {
+			return this.searching
 		},
 	},
-	mounted: function () {
-		$.ajax({
-			method: 'GET',
-			url: generateUrl(`/apps/${APP_ID}/systemtags`)
-		}).then(response => {
-			this.systemTags = response
-		})
+	created() {
+		this.fetchFavorites()
+	},
+	mounted() {
+		this.loadSystemTags()
 	},
 	methods: {
-		/**
-		 * @param int $bytes
-		 *
-		 * @return string
-		 */
-		/*
-		public function humanReadable(int $bytes): string {
-	  if ($bytes == 0) {
-		return '0.00 B';
-	  }
-
-	  $s = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-	  $e = floor(log($bytes, 1024));
-
-	  return round($bytes / pow(1024, $e), 2) . ' ' . $s[$e];
-	}*/
-		humanFileSize (size) {
-			if (size === 0) {
-				return '0.00 B';
+		fetchFavorites() {
+			if (this.favoritesDisabled) {
+				this.favoritesState = 'ready'
+				this.favorites = []
+				return
 			}
-			let i = Math.floor(Math.log(size) / Math.log(1024));
-			if (i < 1) {
-				return '< 1 KB'
-			}
-			return (size / Math.pow(1024, i)).toFixed(i - 1) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
+			this.favoritesState = 'loading'
+			getFavoriteNodes(client)
+				.then(nodes => {
+					this.favorites = nodes
+					this.favoritesState = 'ready'
+				})
+				.catch(() => {
+					this.favorites = []
+					this.favoritesState = 'ready'
+				})
 		},
-		search () {
-			let searchTerm = this.term.toLowerCase()
-			let metaTags = this.metaTerm.toLowerCase().split(' ')
-			// remove empty strings
+		loadSystemTags() {
+			axios.get(generateUrl(`/apps/${APP_ID}/systemtags`))
+				.then(response => {
+					this.systemTags = Array.isArray(response.data)
+						? response.data.map(tag => ({
+							value: tag,
+							label: tag,
+						}))
+						: []
+				})
+				.catch(() => {
+					this.systemTags = []
+				})
+		},
+		search() {
+			let searchTerm = this.term.trim().toLowerCase()
+			let metaTags = this.metaTerm.trim().toLowerCase().split(' ')
 			metaTags = metaTags.filter(tag => tag !== '')
-			console.log('TAGS', metaTags.join(","))
-			console.log('SEARCH TERM', searchTerm)
-			if (!RegExp(/\S/).test(searchTerm)) {
-				searchTerm = "*  ";
-			}
-			if (searchTerm.length >= 3) {	// min 3 chars
+			const normalizedTags = this.selectedTags
+				.map(tag => {
+					if (typeof tag === 'string') {
+						return tag
+					}
+					if (tag && typeof tag === 'object') {
+						return tag.value || tag.label || ''
+					}
+					return ''
+				})
+				.filter(Boolean)
+				.map(tag => tag.toLowerCase())
 
+			if (!/\S/.test(searchTerm)) {
+				searchTerm = '*  '
+			}
+
+			if (searchTerm.length >= 3) {
 				this.searched = true
 				this.searching = true
-				console.log('METATAGS', metaTags, metaTags.length)
-				$.ajax({
-					method: 'GET',
-					url: generateUrl('/apps/fulltextsearch/v1/search'),
-					data: {
+				axios.get(generateUrl('/apps/fulltextsearch/v1/search'), {
+					params: {
 						request: JSON.stringify({
-								providers: 'all',
-								search: searchTerm,
-								page: 1,
-								metatags: metaTags,
-								options: {
-									"files_local": "0",
-									"files_extension": "",
-									"tags": this.selectedTags.map(tag=>tag.toLowerCase()),
-									"metatags": metaTags,
-									"tag_mode": this.tagMode,
-								},
-								size: 100
-							}
-						)
-					}
+							providers: 'all',
+							search: searchTerm,
+							page: 1,
+									metatags: metaTags,
+									options: {
+										files_local: '0',
+										files_extension: '',
+										tags: normalizedTags,
+										metatags: metaTags,
+										tag_mode: this.tagMode,
+							},
+							size: 100,
+						}),
+					},
 				}).then(response => {
-					console.log('SEARCH RESPONSE', response)
+					const result = response.data
 					this.searching = false
-				if (response.result[0].documents) {
-						// Transform the documents to match favorites structure while preserving original data
-						this.items = response.result[0].documents.map(item => ({
+					if (result.result?.[0]?.documents) {
+						this.items = result.result[0].documents.map(item => ({
 							...item,
 							displayname: item.info.file,
 							size: item.info.size,
 							mtime: item.info.mtime,
-							fileid: item.id
-						}));
-						console.log('ITEMS', this.items)
+							fileid: item.id,
+						}))
 					} else {
-						this.items = [];
+						this.items = []
 					}
-				});
+				}).catch(() => {
+					this.searching = false
+					this.items = []
+				})
 			}
 		},
 		toggleSearchFullwidth() {
-			this.isSearchFullwidth = !this.isSearchFullwidth;
+			this.isSearchFullwidth = !this.isSearchFullwidth
 		},
 		toggleGridView() {
-			this.isGridView = !this.isGridView;
-		}
-	}
+			this.isGridView = !this.isGridView
+		},
+		toggleTagMode() {
+			this.tagMode = this.tagMode === 'and' ? 'or' : 'and'
+		},
+	},
 }
 </script>
 
 <style>
+.tu-dashboard {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 4);
+	padding: calc(var(--default-grid-baseline) * 2) 0;
+	width: 100%;
+	box-sizing: border-box;
+}
 
-.search-term-container {
+.tu-dashboard__hero {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--border-radius-large);
+	background-color: var(--color-background-muted);
+	padding: calc(var(--default-grid-baseline) * 6);
+	color: var(--color-primary-text);
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.tu-dashboard__hero--with-background {
+	background-image: var(--tu-dashboard-hero-image);
+	background-position: center;
+	background-size: cover;
+}
+
+.tu-dashboard__hero::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.1));
+	pointer-events: none;
+	z-index: 0;
+}
+
+.tu-dashboard__hero-body {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	gap: calc(var(--default-grid-baseline) * 3);
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+.tu-dashboard__welcome {
+	margin: 0;
+	font-size: 1.75rem;
+	font-weight: 600;
+	color: var(--color-primary-text);
+}
+
+.tu-dashboard__form {
+	display: grid;
+	gap: calc(var(--default-grid-baseline) * 2);
+	width: 100%;
+}
+
+.tu-dashboard__form-row {
 	display: flex;
 	flex-wrap: wrap;
-	max-width: 350px;
-}
-
-.style-chooser.v-select {
-	max-width: 350px;
-	min-width: calc(100% - 125px);
-	width: 100%;
-	margin: 0;
-	text-transform: none;
-}
-
-
-#term {
-	min-width: 100%;
-	height: 40px;
-	margin: 0 5px 0 0;
-}
-
-@media screen and (max-width: 767px) {
-	#term {
-		margin-bottom: 5px;
-	}
-}
-
-.style-chooser .vs__search {
-	border: none !important;
-}
-
-.style-chooser .vs__dropdown-toggle {
-	min-height: 40px;
-	padding-bottom: 0;
-}
-
-.style-chooser .vs__actions {
-	display: none;
-}
-
-.style-chooser .vs__selected {
-	border: none;
-	max-height: 32px;
-	color: #707070;
-	background: #EDEDED;
-}
-
-.style-chooser .vs__selected-options {
-	min-height: 36px;
-}
-
-.style-chooser .vs__dropdown-option--highlight {
-	color: #707070;
-	background: #EDEDED;
-}
-
-.style-chooser .vs__dropdown-option--selected {
-	color: #EDEDED;
-	background: #707070;
-}
-
-.style-chooser .vs__dropdown-menu {
-	top: calc(100% - 6px);
-}
-
-.style-chooser input.vs__search::placeholder {
-	text-transform: none !important;
-	font-variant: normal !important;
-	font-variant-caps: normal !important;
-	font-size: 18px !important;
-	color: rgb(111, 111, 111) !important;
-}
-
-.style-chooser input.vs__search {
-	padding-top: 6px !important;
-	padding-bottom: 5px !important;
-}
-
-.style-chooser button.vs__deselect {
-	display: flex;
+	gap: calc(var(--default-grid-baseline) * 1.5);
 	align-items: center;
-}
-
-#search-arrow {
-	cursor: pointer;
-}
-
-
-
-.app-tuuls_dashboard #filestable #fileList tr td {
-	border-bottom: none;
-}
-
-.app-tuuls_dashboard #filestable #fileList tr td:not(:first-of-type) {
-	padding-left: 1em;
-}
-
-.app-tuuls_dashboard #filestable #fileList .thumbnail {
-	display: grid;
-	place-items: center;
-}
-
-.app-tuuls_dashboard #filestable #fileList .thumbnail img {
-	width: 100%;
-	max-height: 64px;
-	object-fit: contain;
-}
-
-.fullwidth-toggle-btn {
-	background: transparent;
-	border: 1px solid var(--color-border-dark);
-	border-radius: var(--border-radius);
-	padding: 6px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 34px;
-	height: 34px;
-	transition: background-color 0.2s ease;
-}
-
-.fullwidth-toggle-btn:hover {
-	background: var(--color-background-hover);
-}
-
-.fullwidth-toggle-btn.active {
-	background: var(--color-primary-element);
-	border-color: var(--color-primary-element);
-}
-
-.fullwidth-toggle-btn .icon {
-	width: 16px;
-	height: 16px;
-	opacity: 0.7;
-}
-
-.fullwidth-toggle-btn:hover .icon {
-	opacity: 1;
-}
-
-.view-toggle-btn {
-	background: transparent;
-	border: 1px solid var(--color-border-dark);
-	border-radius: var(--border-radius);
-	padding: 6px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 34px;
-	height: 34px;
-	transition: background-color 0.2s ease;
-}
-
-.view-toggle-btn:hover {
-	background: var(--color-background-hover);
-}
-
-.view-toggle-btn.active {
-	background: var(--color-primary-element);
-	border-color: var(--color-primary-element);
-}
-
-
-.view-toggle-btn .icon {
-	width: 16px;
-	height: 16px;
-	opacity: 0.7;
-}
-
-.view-toggle-btn:hover .icon {
-	opacity: 1;
-}
-
-.grid-view .filestable {
-	--thumbail-size: 230px;
-	--thumbail-margin: 4px;
-}
-
-/* Grid view styles */
-.grid-view .filestable tbody {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	gap: 8px;
-	padding: 16px 0;
-}
-
-
-
-/* Thumbnail overlay - only visible in grid view */
-.thumbnail-overlay {
-	display: none;
-}
-
-.grid-view .thumbnail-overlay {
-	display: block;
-	position: absolute;
-	bottom: 0.5em;
-	left: var(--thumbail-margin);
-	right: var(--thumbail-margin);
-	height: 75%;
-	max-height: calc(var(--thumbail-size) * 0.8);
-	background: var(--color-background-dark);
-	z-index: 5;
-	opacity: 0;
-	transition: opacity 0.3s ease;
-	overflow-y: auto;
-	overflow-x: hidden;
-	border-radius: var(--border-radius);
-	box-sizing: border-box;
-	width: 98%;
-	max-width: 98%;
-}
-
-.grid-view .thumbnail-overlay:hover {
-	opacity: 0.8;
-}
-
-.grid-view .overlay-content {
-	padding: 8px 10px;
-	color: var(--color-primary-text);
-	font-size: 0.8em;
-	line-height: 1.3;
-	width: 100%;
-	box-sizing: border-box;
-}
-
-.grid-view .overlay-field {
-	margin-bottom: 4px;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	word-break: break-word;
-	hyphens: auto;
 	width: 100%;
 }
 
-.grid-view .overlay-field:last-child {
-	margin-bottom: 0;
+.tu-dashboard__select-wrapper {
+	flex: 1 1 100%;
+	min-width: 0;
+	min-width: 0;
 }
 
-.grid-view .overlay-label {
-	font-weight: 600;
-	margin-right: 4px;
-	white-space: nowrap;
-}
-
-.grid-view .overlay-value {
-	color: var(--color-primary-text);
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	word-break: break-word;
-	white-space: normal;
-}
-.grid-view .overlay-label {
-	font-weight: bold;
-}
-
-.grid-view table.filestable {
-	display: block;
-}
-
-
-.grid-view .filestable tbody tr {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background: var(--color-background-hover);
-	border-radius: var(--border-radius);
-	padding: 8px 0 8px 0;
-	height: auto;
-	min-height: 200px;
-	border-bottom: none;
-	text-align: center;
-}
-
-.grid-view .filestable tbody tr td {
-	border-bottom: none;
-	padding: 4px 0;
-	width: 100%;
-	display: flex;
-	justify-content: center;
-}
-
-.grid-view .filestable tbody tr td.filename {
-	order: 2;
-	flex-direction: column;
-	min-width: 100%;
-	height: 1.5em;
-	align-items: center;
-}
-
-.grid-view .filestable tbody tr td.size {
-	order: 3;
-	font-size: 0.9em;
-	color: var(--color-text-maxcontrast);
-}
-
-.grid-view .filestable tbody tr td.modified {
-	order: 4;
-	font-size: 0.9em;
-	color: var(--color-text-maxcontrast);
-}
-
-.grid-view .filestable tbody tr td.beschreibung {
-	order: 5;
-	font-size: 0.9em;
-	color: var(--color-text-maxcontrast);
-}
-
-.grid-view .filestable tbody tr td.tags {
-	order: 6;
-	font-size: 0.9em;
-	color: var(--color-text-maxcontrast);
-}
-
-.grid-view .filestable tbody tr td.info {
-	order: 7;
-	font-size: 0.9em;
-	color: var(--color-text-maxcontrast);
-}
-
-.grid-view .filestable tbody tr .thumbnail-wrapper {
-	order: 1;
-	margin-bottom: 8px;
-	position: relative;
-	text-align: center;
-}
-
-/* Tag search wrapper with mode toggle */
-.tag-search-wrapper {
-	display: flex;
-	align-items: center;
-	gap: 0;
+.tu-dashboard__select-wrapper .nc-select {
 	width: 100%;
 }
 
 .tag-mode-toggle {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	gap: 1px;
-	height: 40px;
-	flex-shrink: 0;
-	padding: 0 4px;
+	gap: calc(var(--default-grid-baseline));
+	padding: 8px 12px;
+	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border);
+	background-color: var(--color-main-background);
 	cursor: pointer;
 	user-select: none;
-	border-radius: var(--border-radius);
-	transition: background-color 0.2s ease;
+	transition: background-color var(--animation-quick) ease, border-color var(--animation-quick) ease;
+	min-height: 46px;
+	min-width: 160px;
+	justify-content: center;
 }
 
+.tag-mode-toggle:hover {
+	background-color: var(--color-background-hover);
+}
+
+.tag-mode-toggle:focus-visible {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+.tag-mode-toggle:active {
+	background-color: var(--color-background-muted);
+}
 
 .tag-mode-toggle .toggle-label {
-	font-size: 11px;
+	font-size: 0.8rem;
 	font-weight: 600;
 	color: var(--color-text-maxcontrast);
-	transition: color 0.3s ease;
-	min-width: 32px;
-	text-align: center;
+	letter-spacing: 0.04em;
 }
 
-.tag-mode-toggle:hover .toggle-label {
-	color: var(--color-main-text);
+.tag-mode-toggle .toggle-label.is-active {
+	color: var(--color-primary-element);
 }
 
 .tag-mode-toggle .toggle-icon {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
-	transition: all 0.3s ease;
+	width: 28px;
+	height: 28px;
 }
 
 .tag-mode-toggle .toggle-icon svg {
-	width: 32px;
-	height: 32px;
+	width: 22px;
+	height: 22px;
 	fill: var(--color-primary-element);
-	transition: fill 0.3s ease;
 }
 
-
-/* Hide file info columns and table header in grid view */
-.grid-view .filestable  td.file-info {
-	display: none;
+.tu-dashboard__tag-mode {
+	flex: 0 0 150px;
+	align-self: stretch;
+	background: none;
+	box-shadow: none;
 }
 
-.grid-view .filestable thead {
-	display: none;
+.tu-dashboard__submit {
+	align-self: flex-start;
+	min-width: 160px;
 }
 
-.grid-view a.thumbnail-link {
-	position: relative;
+.tu-dashboard__content {
+	display: flex;
+	flex-wrap: wrap;
+	gap: calc(var(--default-grid-baseline) * 3);
+	width: 100%;
+	align-items: stretch;
+	padding: 0 calc(var(--default-grid-baseline) * 2);
+	box-sizing: border-box;
+}
+
+.tu-dashboard__content--full {
+	flex-direction: column;
+}
+
+.tu-dashboard__favorites {
+    flex: 0 0 30%;
+    max-width: 360px;
+    background-color: transparent;
+    border-radius: var(--border-radius);
+    padding: calc(var(--default-grid-baseline) * 2);
+    min-width: 280px;
+}
+
+.tu-dashboard__results {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 2);
+	min-width: 320px;
+}
+
+.tu-dashboard__results-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: calc(var(--default-grid-baseline) * 2);
+}
+
+.tu-dashboard__section-title {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+}
+
+.tu-dashboard__actions {
+	display: flex;
+	gap: calc(var(--default-grid-baseline) * 1.5);
+}
+
+.tu-dashboard__action {
+	padding: 0;
+}
+
+.tu-dashboard__list {
+	background-color: var(--color-background-default);
+	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border);
+	box-shadow: var(--box-shadow-level-1);
+	padding: calc(var(--default-grid-baseline) * 2);
+}
+
+.tu-dashboard__list--favorites {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+@media (max-width: 768px) {
+	.tu-dashboard__hero {
+		padding: calc(var(--default-grid-baseline) * 4);
+	}
+
+	.tu-dashboard__form-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.tu-dashboard__actions {
+		justify-content: flex-end;
+	}
 }
 
 </style>

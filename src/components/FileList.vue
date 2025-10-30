@@ -1,259 +1,569 @@
 <template>
-	<div>
-		<div v-if="state === 'initial'" class="color-grey">{{ initialText }}</div>
-		<div v-else-if="state === 'loading'" class="color-grey">{{ loadingText }}</div>
-		<div v-else-if="state === 'ready' && !items.length" class="color-grey">{{ emptyText }}</div>
-
-		<table class="filestable list-container" v-else-if="state === 'ready' && items.length">
+	<div class="file-list" :class="{ 'file-list--grid': grid }">
+		<NcEmptyContent
+			v-if="state === 'initial'"
+			:name="initialText"
+		/>
+		<div v-else-if="state === 'loading'" class="file-list__state">
+			<NcLoadingIcon size="44" />
+			<p>{{ loadingText }}</p>
+		</div>
+		<NcEmptyContent
+			v-else-if="!items.length"
+			:name="emptyText"
+		/>
+		<table v-else-if="!grid" class="file-table" role="table">
 			<thead>
-			<tr>
-				<th id="headerName" class="column-thumbnail">
-					<div id="headerName-container">
-						<span class="columntitle thumbnail"></span>
-					</div>
-				</th>
-				<th id="headerName" class="column-name">
-					<div id="headerName-container">
-						<span class="columntitle name">Name</span>
-					</div>
-				</th>
-				<th v-if="columns.includes('size')">
-					<div>
-						<span class="columntitle size">Größe</span>
-					</div>
-				</th>
-				<th v-if="columns.includes('modified')">
-					<div>
-						<span class="columntitle modified">Zuletzt geändert</span>
-					</div>
-				</th>
-				<th v-if="columns.includes('beschreibung')">
-					<div>
-						<span class="columntitle beschreibung">Beschreibung</span>
-					</div>
-				</th>
-				<th v-if="columns.includes('tags')">
-					<div>
-						<span class="columntitle tags">Tags</span>
-					</div>
-				</th>
-				<th v-if="columns.includes('info')">
-					<div>
-						<span class="columntitle info">Informationen</span>
-					</div>
-				</th>
-			</tr>
+				<tr>
+					<th scope="col" class="file-table__head file-table__head--name">Name</th>
+					<th
+						v-if="hasColumn('size')"
+						scope="col"
+						class="file-table__head file-table__head--size"
+					>Größe</th>
+					<th
+						v-if="hasColumn('modified')"
+						scope="col"
+						class="file-table__head"
+					>Zuletzt geändert</th>
+					<th
+						v-if="hasColumn('beschreibung')"
+						scope="col"
+						class="file-table__head"
+					>Beschreibung</th>
+					<th
+						v-if="hasColumn('tags')"
+						scope="col"
+						class="file-table__head"
+					>Tags</th>
+					<th
+						v-if="hasColumn('info')"
+						scope="col"
+						class="file-table__head"
+					>Informationen</th>
+				</tr>
 			</thead>
-			<tbody class=".fileList">
-			<tr v-for="(item, index) in items" :key="item.fileid || index">
-				<td class="col-thumbnail">
-					<a class="name thumbnail-link" :href="generateFileUrl(item)" target="_blank">
-						<div class="thumbnail-wrapper">
-							<div class="thumbnail" v-html="generateThumbnail(item)">
-							</div>
-						</div>
-						<div class="thumbnail-overlay">
-							<div class="overlay-content">
-								<div class="overlay-field">
-									<span class="overlay-label">Name:</span>
-									<span class="overlay-value">{{ item.displayname }}</span>
-								</div>
-								<div v-if="columns.includes('size')" class="overlay-field">
-									<span class="overlay-label">Größe:</span>
-									<span class="overlay-value">{{ humanFileSize(item.size) }}</span>
-								</div>
-								<div v-if="columns.includes('modified')" class="overlay-field">
-									<span class="overlay-label">Zuletzt geändert:</span>
-									<span class="overlay-value">{{ formatDate(item.mtime) }}</span>
-								</div>
-								<div v-if="columns.includes('beschreibung')" class="overlay-field">
-									<span class="overlay-label">Beschreibung:</span>
-									<span class="overlay-value">{{ formatDescription(item.info) }}</span>
-								</div>
-								<div v-if="columns.includes('tags')" class="overlay-field">
-									<span class="overlay-label">Tags:</span>
-									<span class="overlay-value">
-											<span v-if="!item.info || !item.info.systemtags || !Array.isArray(item.info.systemtags) || item.info.systemtags.length === 0">-</span>
-											<span v-else>{{ item.info.systemtags.join(', ') }}</span>
-										</span>
-								</div>
-								<div v-if="columns.includes('info')" class="overlay-field">
-									<span class="overlay-label">Informationen:</span>
-									<span class="overlay-value">{{ formatInfo(item.info) }}</span>
-								</div>
-							</div>
-						</div>
-					</a>
-				</td>
-
-				<td class="filename file-info">
-					<a class="name" :href="generateFileUrl(item)" target="_blank">
-						<span class="nametext">
-                                <span class="innernametext">{{ item.displayname }}</span>
-                            </span>
-					</a>
-				</td>
-				<td class="size file-info" v-if="columns.includes('size')">
-                        <span class="nametext">
-                            <span class="innernametext">{{ humanFileSize(item.size) }}</span>
-                        </span>
-				</td>
-				<td class="modified file-info" v-if="columns.includes('modified')">
-                        <span class="nametext">
-                            <span class="innernametext">{{ formatDate(item.mtime) }}</span>
-                        </span>
-				</td>
-				<td class="beschreibung file-info" v-if="columns.includes('beschreibung')">
-                        <span class="nametext">
-                            <span class="innernametext">{{ formatDescription(item.info) }}</span>
-                        </span>
-				</td>
-				<td class="tags file-info" v-if="columns.includes('tags')">
-                        <span class="nametext">
-                            <span v-if="!item.info || !item.info.systemtags || !Array.isArray(item.info.systemtags) || item.info.systemtags.length === 0" class="innernametext">-</span>
-                            <span v-else>
-							<span v-for="tag in item.info.systemtags" :key="tag" class="system-tag">{{ tag }}</span>
+			<tbody>
+				<tr
+					v-for="(item, index) in items"
+					:key="item.fileid || index"
+					class="file-table__row"
+				>
+					<td class="file-table__cell file-table__cell--name">
+						<a
+							class="file-table__link"
+							:href="fileHref(item)"
+							@click.prevent="openItem(item, $event)"
+						>
+							<span class="file-table__thumb" aria-hidden="true">
+								<img v-if="thumbnailUrl(item)" :src="thumbnailUrl(item)" alt="" />
+								<NcIconSvgWrapper v-else :svg="isFolder(item) ? folderSvg : fileSvg" />
 							</span>
-                        </span>
-				</td>
-				<td class="info file-info" v-if="columns.includes('info')">
-                        <span class="nametext">
-                            <span class="innernametext info-text">{{ formatInfo(item.info) }}</span>
-                        </span>
-				</td>
-			</tr>
+							<span class="file-table__title">{{ item.displayname }}</span>
+						</a>
+					</td>
+					<td
+						v-if="hasColumn('size')"
+						class="file-table__cell file-table__cell--numeric"
+					>
+						{{ humanFileSize(item.size) }}
+					</td>
+					<td
+						v-if="hasColumn('modified')"
+						class="file-table__cell"
+					>
+						{{ formatDate(item.mtime) || '-' }}
+					</td>
+					<td
+						v-if="hasColumn('beschreibung')"
+						class="file-table__cell"
+					>
+						{{ formatDescription(item.info) || '-' }}
+					</td>
+					<td
+						v-if="hasColumn('tags')"
+						class="file-table__cell"
+					>
+						{{ formatTags(item.info) }}
+					</td>
+					<td
+						v-if="hasColumn('info')"
+						class="file-table__cell"
+					>
+						{{ formatInfo(item.info) }}
+					</td>
+				</tr>
 			</tbody>
 		</table>
+		<div v-else class="file-list__grid" role="list">
+			<article
+				v-for="(item, index) in items"
+				:key="item.fileid || index"
+				class="file-card"
+				role="listitem"
+			>
+				<button
+					type="button"
+					class="file-card__button"
+					:aria-label="item.displayname"
+					@click="openItem(item, $event)"
+				>
+					<div class="file-card__thumb" aria-hidden="true">
+						<img v-if="thumbnailUrl(item)" :src="thumbnailUrl(item)" alt="" />
+						<NcIconSvgWrapper v-else :svg="isFolder(item) ? folderSvg : fileSvg" />
+					</div>
+					<div class="file-card__body">
+						<h4 class="file-card__name">{{ item.displayname }}</h4>
+						<dl class="file-card__meta" aria-label="Dateiinformationen">
+							<div
+								v-for="meta in buildMetaEntries(item)"
+								:key="meta.key"
+								class="file-card__meta-entry"
+							>
+								<dt class="file-card__meta-label">{{ meta.label }}</dt>
+								<dd class="file-card__meta-value">{{ meta.value }}</dd>
+							</div>
+						</dl>
+						<p
+							v-if="hasColumn('beschreibung') && formatDescription(item.info)"
+							class="file-card__description"
+						>
+							{{ formatDescription(item.info) }}
+						</p>
+					</div>
+				</button>
+			</article>
+		</div>
 	</div>
 </template>
 
 <script>
+import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
+import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import NcIconSvgWrapper from '@nextcloud/vue/dist/Components/NcIconSvgWrapper.js'
+
 import { generateUrl } from '@nextcloud/router'
+
 import FolderSvg from '@mdi/svg/svg/folder.svg?raw'
+import FileDocumentOutlineSvg from '@mdi/svg/svg/file-document-outline.svg?raw'
 
 export default {
 	name: 'FileList',
+	components: {
+		NcEmptyContent,
+		NcLoadingIcon,
+		NcIconSvgWrapper,
+	},
 	props: {
 		items: {
 			type: Array,
-			required: true
+			required: true,
 		},
 		state: {
 			type: String,
 			required: true,
-			validator: value => ['initial', 'loading', 'ready'].includes(value)
+			validator: value => ['initial', 'loading', 'ready'].includes(value),
 		},
 		initialText: {
 			type: String,
-			required: true
+			required: true,
 		},
 		loadingText: {
 			type: String,
-			required: true
+			required: true,
 		},
 		emptyText: {
 			type: String,
-			required: true
+			required: true,
 		},
 		columns: {
 			type: Array,
 			default: () => ['name'],
-			validator: value => value.includes('name')
-		}
+			validator: value => value.includes('name'),
+		},
+		grid: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	computed: {
+		folderSvg() {
+			return FolderSvg
+		},
+		fileSvg() {
+			return FileDocumentOutlineSvg
+		},
+		showDescription() {
+			return this.columns.includes('beschreibung')
+		},
 	},
 	methods: {
-		humanFileSize(size) {
-			if (size === 0) {
-				return '0.00 B';
-			}
-			let i = Math.floor(Math.log(size) / Math.log(1024));
-			if (i < 1) {
-				return '< 1 KB'
-			}
-			return (size / Math.pow(1024, i)).toFixed(i - 1) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
+		hasColumn(column) {
+			return this.columns.includes(column)
 		},
-		formatDate(timestamp) {
-			// check if timestamp is in milliseconds
-			if (timestamp < 10000000000) {
-				timestamp *= 1000
-			}
-			return new Date(timestamp ).toLocaleDateString()
+		isFolder(item) {
+			return item.type === 'folder'
 		},
-		generateFileUrl(item) {
+		fileHref(item) {
+			if (!item.fileid) {
+				return '#'
+			}
 			return generateUrl(`/f/${item.fileid}`)
 		},
-		generateThumbnail(item) {
-			if (item.type === 'folder') {
-				return FolderSvg
+		thumbnailUrl(item) {
+			if (!item.fileid || this.isFolder(item)) {
+				return ''
 			}
-			return '<img src='+
-				generateUrl(`/core/preview?fileId=${item.fileid}&x=140&y=140&mimeFallback=true&a=1`)+'/>'
+			return generateUrl(`/core/preview?fileId=${item.fileid}&x=140&y=140&mimeFallback=true&a=1`)
+		},
+		humanFileSize(size) {
+			const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+			if (size === 0) {
+				return '0.00 B'
+			}
+			if (!size || size < 1024) {
+				return '< 1 KB'
+			}
+			const exponent = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1)
+			const precision = Math.max(exponent - 1, 0)
+			const value = Number((size / Math.pow(1024, exponent)).toFixed(precision))
+			return `${value} ${units[exponent]}`
+		},
+		formatDate(timestamp) {
+			if (!timestamp) {
+				return ''
+			}
+			const value = timestamp < 10000000000 ? timestamp * 1000 : timestamp
+			return new Date(value).toLocaleDateString()
+		},
+		formatTags(info) {
+			if (!info || !Array.isArray(info.systemtags) || !info.systemtags.length) {
+				return '-'
+			}
+			return info.systemtags.join(', ')
 		},
 		formatInfo(info) {
 			if (!info) {
-				return ''
+				return '-'
 			}
 			const parts = []
-
-			// Add copyright if available
 			if (info.copyright) {
 				parts.push(`Copyright: ${info.copyright}`)
 			}
-
-			// Add resolution (width x height) if both are available
 			if (info.imagewidth && info.imageheight) {
-				parts.push(`Auflösung: ${info.imagewidth} x ${info.imageheight}`)
+				parts.push(`Auflösung: ${info.imagewidth} × ${info.imageheight}`)
 			}
-
-			// Add DPI if both x and y resolution are available
 			if (info.xresolution && info.yresolution) {
-				let dpi = info.xresolution==info.yresolution ? `${info.xresolution}` : `${info.xresolution} x ${info.yresolution}`
-				parts.push(`DPI: ${info.xresolution} x ${dpi}`)
+				const dpi = info.xresolution === info.yresolution ? info.xresolution : `${info.xresolution} × ${info.yresolution}`
+				parts.push(`DPI: ${dpi}`)
 			}
-
-			return parts.length > 0 ? parts.join('\n') : '-'
+			if (!parts.length) {
+				return '-'
+			}
+			return parts.join(' · ')
 		},
 		formatDescription(info) {
 			if (!info || !info.description) {
-				return '-'
+				return ''
 			}
-			const description = info.description
-			// Restrict to 200 characters
+			const description = info.description.trim()
 			if (description.length > 200) {
-				return description.substring(0, 200) + '...'
+				return `${description.substring(0, 200)}…`
 			}
 			return description
-		}
-	}
+		},
+		buildMetaEntries(item) {
+			const entries = []
+			if (this.hasColumn('size')) {
+				const sizeValue = item.size !== undefined && item.size !== null ? this.humanFileSize(item.size) : '-'
+				entries.push({
+					key: 'size',
+					label: 'Größe',
+					value: sizeValue,
+				})
+			}
+			if (this.hasColumn('modified')) {
+				const modifiedValue = this.formatDate(item.mtime) || '-'
+				entries.push({
+					key: 'modified',
+					label: 'Zuletzt geändert',
+					value: modifiedValue,
+				})
+			}
+			if (this.hasColumn('tags')) {
+				entries.push({
+					key: 'tags',
+					label: 'Tags',
+					value: this.formatTags(item.info),
+				})
+			}
+			if (this.hasColumn('info')) {
+				entries.push({
+					key: 'info',
+					label: 'Informationen',
+					value: this.formatInfo(item.info),
+				})
+			}
+			return entries
+		},
+		openItem(item, event) {
+			if (event) {
+				event.preventDefault()
+				event.stopPropagation()
+			}
+
+			if (!item.fileid) {
+				return
+			}
+
+			const path = `/f/${item.fileid}`
+			const router = typeof window !== 'undefined' && window.OCP && window.OCP.Files && window.OCP.Files.Router
+
+			if (router && typeof router.goTo === 'function') {
+				router.goTo(path).catch(() => {
+					window.location.href = this.fileHref(item)
+				})
+			} else {
+				window.location.href = this.fileHref(item)
+			}
+		},
+	},
 }
 </script>
+
 <style>
-.thumbnail svg {
-	fill: var(--color-primary-element);
+.file-list {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 2);
 }
-.list-container .nametext {
-	padding-left: 0.5em;
+
+.file-list__state {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--default-grid-baseline) * 2);
+	color: var(--color-text-maxcontrast);
 }
-.info-text {
-	white-space: pre-line;
+
+.file-list__state p {
+	margin: 0;
 }
-.beschreibung {
-	max-width: 300px;
+
+.file-table {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-size: 0.95rem;
+	table-layout: fixed;
 }
-.beschreibung .nametext {
-	white-space: normal;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
+
+.file-table__head {
+	text-align: left;
+	padding: 12px 16px;
+	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+	background-color: var(--color-background-hover);
 }
-.tags {
-	max-width: 300px;
+
+.file-table__head--name {
+	width: 40%;
 }
-.tags .nametext {
-	white-space: normal;
-	word-wrap: break-word;
-	overflow-wrap: anywhere;
+
+.file-table__head--size {
+	width: 10%;
+	text-align: right;
 }
-.thumbnail {
-	max-width: 300px;
+
+.file-table__row {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-background-default);
+    min-height: 112px;
+}
+
+.file-table__row:hover {
+	background-color: var(--color-background-hover);
+}
+
+.file-table__cell {
+	padding: 14px 16px;
+	vertical-align: middle;
+	color: var(--color-main-text);
+}
+
+.file-table__cell--name {
+	padding-left: 20px;
+}
+
+.file-table__cell--numeric {
+	text-align: right;
+}
+
+.file-table__link {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--default-grid-baseline) * 1.5);
+	color: inherit;
+	text-decoration: none;
+	width: 100%;
+}
+
+.file-table__link:hover .file-table__title {
+	text-decoration: underline;
+}
+
+.file-table__thumb {
+	width: 96px;
+	height: 96px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--border-radius);
+	background-color: var(--color-background-dark);
+	overflow: hidden;
+}
+
+.file-table__thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.file-table__title {
+	font-weight: 600;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: 420px;
+	display: inline-block;
+}
+
+.file-list__grid {
+	display: grid;
+	gap: calc(var(--default-grid-baseline) * 2);
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.file-card {
+	background-color: var(--color-background-default);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	box-shadow: var(--box-shadow-level-1);
+	transition: transform var(--animation-quick) ease, border-color var(--animation-quick) ease;
+}
+
+.file-card__button {
+	all: unset;
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 1.5);
+	padding: calc(var(--default-grid-baseline) * 2);
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	border-radius: inherit;
+}
+
+.file-card__button:focus-visible {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+.file-card:hover,
+.file-card:focus-within {
+	transform: translateY(-2px);
+	border-color: var(--color-primary-element);
+}
+
+.file-card:hover .file-card__meta,
+.file-card:focus-within .file-card__meta,
+.file-card:hover .file-card__description,
+.file-card:focus-within .file-card__description {
+	opacity: 1;
+	max-height: 240px;
+}
+
+.file-card__thumb {
+	width: 100%;
+	height: 220px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--border-radius);
+	background-color: var(--color-background-dark);
+	overflow: hidden;
+}
+
+.file-card__thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.file-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 1.25);
+}
+
+.file-card__name {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.file-card__meta {
+	display: grid;
+	gap: calc(var(--default-grid-baseline) * 0.75);
+	margin: 0;
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: opacity var(--animation-quick) ease, max-height var(--animation-quick) ease;
+}
+
+.file-card__meta-entry {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: calc(var(--default-grid-baseline) * 0.5);
+}
+
+.file-card__meta-label {
+	margin: 0;
+	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+}
+
+.file-card__meta-value {
+	margin: 0;
+	color: var(--color-main-text);
+	word-break: break-word;
+}
+
+.file-card__description {
+	margin: 0;
+	color: var(--color-text-maxcontrast);
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: opacity var(--animation-quick) ease, max-height var(--animation-quick) ease;
+}
+
+.file-list__state + .file-table {
+	margin-top: calc(var(--default-grid-baseline) * 2);
+}
+
+@media (max-width: 768px) {
+	.file-table__head,
+	.file-table__cell {
+		padding: 12px;
+	}
+
+	.file-table__title {
+		max-width: 180px;
+	}
+
+	.file-list__grid {
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	}
 }
 </style>

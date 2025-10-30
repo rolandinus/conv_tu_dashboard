@@ -1,8 +1,12 @@
+import { linkTo } from '@nextcloud/router'
 import Vue from 'vue'
 import App from './App.vue'
 
-console.log('INIT main.js')
+__webpack_nonce__ = window.btoa(OC.requestToken) // eslint-disable-line no-undef, camelcase, no-global-assign
+__webpack_public_path__ = linkTo('tuuls_dashboard', 'js/') // eslint-disable-line no-undef, camelcase, no-global-assign
+
 Vue.mixin({ methods: { t, n } })
 
-const View = Vue.extend(App)
-new View().$mount('#tu-dashboard')
+new Vue({
+	render: h => h(App),
+}).$mount('#tu-dashboard')
