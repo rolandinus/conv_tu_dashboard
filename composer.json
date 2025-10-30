@@ -1,5 +1,5 @@
 {
-    "name": "TUULS Dashboard",
+    "name": "conversory/tuuls-dashboard",
     "description": "TUULS Dashborad",
     "type": "project",
     "license": "AGPL",
@@ -10,6 +10,6 @@
     ],
     "require": {},
     "require-dev": {
-        "phpunit/phpunit": "^5.4"
+        "phpunit/phpunit": "^12.4.1"
     }
 }
