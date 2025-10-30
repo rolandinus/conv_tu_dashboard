@@ -378,6 +378,10 @@ export default {
 	width: 40%;
 } */
 
+.file-table__head--image {
+	width: 280px;
+}
+
 .file-table__head--size {
 	width: 100px;
 	text-align: right;
@@ -421,10 +425,6 @@ export default {
 }
 
 .file-table__thumb {
-	min-width: 140px;
-	max-width: 140px;
-	max-height: 140px;
-	width: 140px;
 	height: auto;
 	display: inline-flex;
 	align-items: center;
@@ -442,12 +442,12 @@ export default {
 }
 
 .file-table__title {
-	font-weight: 600;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	max-width: 420px;
-	display: inline-block;
+      font-weight: 600;
+      white-space: normal;      
+      overflow-wrap: anywhere;  
+      word-break: break-word;   
+      overflow: hidden;         
+      display: inline-block;
 }
 
 .file-list__grid {

@@ -40390,6 +40390,9 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 /* .file-table__head--name {
 	width: 40%;
 } */
+.file-table__head--image {
+	width: 280px;
+}
 .file-table__head--size {
 	width: 100px;
 	text-align: right;
@@ -40425,10 +40428,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 	text-decoration: underline;
 }
 .file-table__thumb {
-	min-width: 140px;
-	max-width: 140px;
-	max-height: 140px;
-	width: 140px;
 	height: auto;
 	display: inline-flex;
 	align-items: center;
@@ -40444,12 +40443,12 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 	max-height: 140px;
 }
 .file-table__title {
-	font-weight: 600;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	max-width: 420px;
-	display: inline-block;
+      font-weight: 600;
+      white-space: normal;      
+      overflow-wrap: anywhere;  
+      word-break: break-word;   
+      overflow: hidden;         
+      display: inline-block;
 }
 .file-list__grid {
 	display: grid;
@@ -60618,4 +60617,4 @@ new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 
 /******/ })()
 ;
-//# sourceMappingURL=tuuls_dashboard-main.js.map?v=37a849674d0ed3e66bcf
+//# sourceMappingURL=tuuls_dashboard-main.js.map?v=049bcdac6bcdcde079ac
