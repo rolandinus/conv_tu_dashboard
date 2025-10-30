@@ -34571,14 +34571,13 @@ var render = function render() {
       id: "tu-dashboard-favorites-heading"
     }
   }, [_vm._v("\n\t\t\t\t\tFavoriten\n\t\t\t\t")]), _vm._v(" "), _c("FileList", {
-    staticClass: "tu-dashboard__list tu-dashboard__list--favorites",
+    staticClass: "tu-dashboard__list--favorites",
     attrs: {
       items: _vm.favorites,
       state: _vm.favoritesState,
       initialText: "Initialisiere Favoriten...",
       loadingText: "Lade Favoriten...",
-      emptyText: "Noch keine Favoriten vorhanden",
-      columns: ["name"]
+      emptyText: "Noch keine Favoriten vorhanden"
     }
   })], 1) : _vm._e(), _vm._v(" "), _c("div", {
     staticClass: "tu-dashboard__results",
@@ -34699,6 +34698,11 @@ var render = function render() {
       role: "table"
     }
   }, [_c("thead", [_c("tr", [_c("th", {
+    staticClass: "file-table__head file-table__head--image",
+    attrs: {
+      scope: "col"
+    }
+  }), _vm._v(" "), _c("th", {
     staticClass: "file-table__head file-table__head--name",
     attrs: {
       scope: "col"
@@ -34733,7 +34737,7 @@ var render = function render() {
       key: item.fileid || index,
       staticClass: "file-table__row"
     }, [_c("td", {
-      staticClass: "file-table__cell file-table__cell--name"
+      staticClass: "file-table__cell file-table__cell--image"
     }, [_c("a", {
       staticClass: "file-table__link",
       attrs: {
@@ -34759,7 +34763,20 @@ var render = function render() {
       attrs: {
         svg: _vm.isFolder(item) ? _vm.folderSvg : _vm.fileSvg
       }
-    })], 1), _vm._v(" "), _c("span", {
+    })], 1)])]), _vm._v(" "), _c("td", {
+      staticClass: "file-table__cell file-table__cell--name"
+    }, [_c("a", {
+      staticClass: "file-table__link",
+      attrs: {
+        href: _vm.fileHref(item)
+      },
+      on: {
+        click: function ($event) {
+          $event.preventDefault();
+          return _vm.openItem(item, $event);
+        }
+      }
+    }, [_c("span", {
       staticClass: "file-table__title"
     }, [_vm._v(_vm._s(item.displayname))])])]), _vm._v(" "), _vm.hasColumn("size") ? _c("td", {
       staticClass: "file-table__cell file-table__cell--numeric"
@@ -40130,7 +40147,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 	max-width: 100vw;
 	box-sizing: border-box;
 	margin-left: calc(50% - 50vw);
-	height: 400px;
+	min-height: 400px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -40279,7 +40296,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 .tu-dashboard__list {
 	background-color: var(--color-background-default);
 	border-radius: var(--border-radius);
-	border: 1px solid var(--color-border);
 	box-shadow: var(--box-shadow-level-1);
 	padding: calc(var(--default-grid-baseline) * 2);
 	min-height: 0;
@@ -40288,7 +40304,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 }
 .tu-dashboard__list--favorites {
 	background-color: transparent;
-	border: none;
 	box-shadow: none;
 	padding: 0;
 	overflow: visible;
@@ -40371,11 +40386,12 @@ ___CSS_LOADER_EXPORT___.push([module.id, `
 	color: var(--color-text-maxcontrast);
 	background-color: var(--color-background-hover);
 }
-.file-table__head--name {
+
+/* .file-table__head--name {
 	width: 40%;
-}
+} */
 .file-table__head--size {
-	width: 10%;
+	width: 100px;
 	text-align: right;
 }
 .file-table__row {
@@ -60602,4 +60618,4 @@ new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 
 /******/ })()
 ;
-//# sourceMappingURL=tuuls_dashboard-main.js.map?v=02e224bca8ec40698102
+//# sourceMappingURL=tuuls_dashboard-main.js.map?v=37a849674d0ed3e66bcf

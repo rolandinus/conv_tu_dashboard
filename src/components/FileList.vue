@@ -15,6 +15,7 @@
 		<table v-else-if="!grid" class="file-table" role="table">
 			<thead>
 				<tr>
+					<th scope="col" class="file-table__head file-table__head--image"></th>
 					<th scope="col" class="file-table__head file-table__head--name">Name</th>
 					<th
 						v-if="hasColumn('size')"
@@ -49,7 +50,7 @@
 					:key="item.fileid || index"
 					class="file-table__row"
 				>
-					<td class="file-table__cell file-table__cell--name">
+					<td class="file-table__cell file-table__cell--image">
 						<a
 							class="file-table__link"
 							:href="fileHref(item)"
@@ -59,6 +60,14 @@
 								<img v-if="thumbnailUrl(item)" :src="thumbnailUrl(item)" alt="" />
 								<NcIconSvgWrapper v-else :svg="isFolder(item) ? folderSvg : fileSvg" />
 							</span>
+						</a>
+					</td>
+					<td class="file-table__cell file-table__cell--name">
+						<a
+							class="file-table__link"
+							:href="fileHref(item)"
+							@click.prevent="openItem(item, $event)"
+						>
 							<span class="file-table__title">{{ item.displayname }}</span>
 						</a>
 					</td>
@@ -365,12 +374,12 @@ export default {
 	background-color: var(--color-background-hover);
 }
 
-.file-table__head--name {
+/* .file-table__head--name {
 	width: 40%;
-}
+} */
 
 .file-table__head--size {
-	width: 10%;
+	width: 100px;
 	text-align: right;
 }
 

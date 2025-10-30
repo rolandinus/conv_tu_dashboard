@@ -84,8 +84,7 @@
 							initialText="Initialisiere Favoriten..."
 							loadingText="Lade Favoriten..."
 							emptyText="Noch keine Favoriten vorhanden"
-							:columns="['name']"
-							class="tu-dashboard__list tu-dashboard__list--favorites"
+							class="tu-dashboard__list--favorites"
 						/>
 					</aside>
 
@@ -402,7 +401,7 @@ export default {
 	max-width: 100vw;
 	box-sizing: border-box;
 	margin-left: calc(50% - 50vw);
-	height: 400px;
+	min-height: 400px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -578,7 +577,6 @@ export default {
 .tu-dashboard__list {
 	background-color: var(--color-background-default);
 	border-radius: var(--border-radius);
-	border: 1px solid var(--color-border);
 	box-shadow: var(--box-shadow-level-1);
 	padding: calc(var(--default-grid-baseline) * 2);
 	min-height: 0;
@@ -588,7 +586,6 @@ export default {
 
 .tu-dashboard__list--favorites {
 	background-color: transparent;
-	border: none;
 	box-shadow: none;
 	padding: 0;
 	overflow: visible;
