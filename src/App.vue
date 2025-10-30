@@ -1,10 +1,6 @@
 <template>
-	<NcAppContent
-		app-name="tuuls_dashboard"
-		layout="no-split"
-		:page-heading="pageHeading"
-	>
-		<NcContent app-name="tuuls_dashboard">
+
+		<NcAppContent app-name="tuuls_dashboard">
 			<div class="tu-dashboard">
 				<section
 					class="tu-dashboard__hero"
@@ -28,7 +24,7 @@
 									:disabled="searching"
 									clearable
 								/>
-							<div class="tu-dashboard__form-row">
+
 								<div class="tu-dashboard__select-wrapper">
 									<NcSelect
 										v-model="selectedTags"
@@ -36,24 +32,23 @@
 										input-id="tu-dashboard-tags"
 										:options="systemTags"
 										placeholder="Suche nach Tags"
-										input-label="Suche nach Tags"
 										:disabled="!systemTags.length"
 									/>
+									<button
+										v-if="enableTagAndOrSwitch"
+										class="tag-mode-toggle"
+										role="switch"
+										:aria-checked="tagMode === 'and'"
+										:aria-label="tagModeAriaLabel"
+										type="button"
+										@click="toggleTagMode"
+									>
+										<span class="toggle-label" :class="{ 'is-active': tagMode === 'and' }">UND</span>
+										<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOffOutline : toggleSwitchOutline"></span>
+										<span class="toggle-label" :class="{ 'is-active': tagMode === 'or' }">ODER</span>
+									</button>
 								</div>
-								<button
-									v-if="enableTagAndOrSwitch"
-									class="tag-mode-toggle tu-dashboard__tag-mode"
-									role="switch"
-									:aria-checked="tagMode === 'and'"
-									:aria-label="tagModeAriaLabel"
-									type="button"
-									@click="toggleTagMode"
-								>
-									<span class="toggle-label" :class="{ 'is-active': tagMode === 'and' }">UND</span>
-									<span class="toggle-icon" v-html="tagMode === 'and' ? toggleSwitchOffOutline : toggleSwitchOutline"></span>
-									<span class="toggle-label" :class="{ 'is-active': tagMode === 'or' }">ODER</span>
-								</button>
-							</div>
+
 								<NcTextField
 									v-model="metaTerm"
 									input-id="tu-dashboard-meta-term"
@@ -61,6 +56,7 @@
 									:disabled="searching"
 									clearable
 								/>
+
 								<NcButton
 									variant="primary"
 									native-type="submit"
@@ -143,8 +139,8 @@
 					</div>
 				</section>
 			</div>
-		</NcContent>
-	</NcAppContent>
+		</NcAppContent>
+
 </template>
 
 <script>
@@ -385,9 +381,14 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 4);
-	padding: calc(var(--default-grid-baseline) * 2) 0;
+	padding: calc(var(--default-grid-baseline) * 2) calc(var(--default-grid-baseline) * 3);
+	padding-top: 0;
 	width: 100%;
 	box-sizing: border-box;
+	min-height: 100%;
+	flex: 1 1 auto;
+	height: 100%;
+	overflow: hidden;
 }
 
 .tu-dashboard__hero {
@@ -395,10 +396,16 @@ export default {
 	overflow: hidden;
 	border-radius: var(--border-radius-large);
 	background-color: var(--color-background-muted);
-	padding: calc(var(--default-grid-baseline) * 6);
+	padding: calc(var(--default-grid-baseline) * 6) calc(var(--default-grid-baseline) * 8);
 	color: var(--color-primary-text);
-	width: 100%;
+	width: 100vw;
+	max-width: 100vw;
 	box-sizing: border-box;
+	margin-left: calc(50% - 50vw);
+	height: 400px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .tu-dashboard__hero--with-background {
@@ -422,6 +429,7 @@ export default {
 	display: grid;
 	gap: calc(var(--default-grid-baseline) * 3);
 	max-width: 520px;
+	min-width: 350px;
 	margin: 0 auto;
 }
 
@@ -438,21 +446,15 @@ export default {
 	width: 100%;
 }
 
-.tu-dashboard__form-row {
-	display: flex;
-	flex-wrap: wrap;
-	gap: calc(var(--default-grid-baseline) * 1.5);
-	align-items: center;
-	width: 100%;
-}
-
 .tu-dashboard__select-wrapper {
-	flex: 1 1 100%;
-	min-width: 0;
-	min-width: 0;
+	display: flex;
+	gap: calc(var(--default-grid-baseline) * 2);
+	width: 100%;
+	margin-block-start: 6px;
 }
 
-.tu-dashboard__select-wrapper .nc-select {
+.v-select.select {
+	margin-bottom: 0 !important;
 	width: 100%;
 }
 
@@ -460,20 +462,18 @@ export default {
 	display: inline-flex;
 	align-items: center;
 	gap: calc(var(--default-grid-baseline));
-	padding: 8px 12px;
-	border-radius: var(--border-radius);
-	border: 1px solid var(--color-border);
-	background-color: var(--color-main-background);
-	cursor: pointer;
+	padding: 8px !important;
+	background-color: var(--color-primary-element) !important;
 	user-select: none;
 	transition: background-color var(--animation-quick) ease, border-color var(--animation-quick) ease;
-	min-height: 46px;
-	min-width: 160px;
 	justify-content: center;
+	margin-top:0 !important;
+	margin-bottom:0 !important;
+	height: 34px !important;
 }
 
 .tag-mode-toggle:hover {
-	background-color: var(--color-background-hover);
+	background-color: var(--color-primary-element-hover);
 }
 
 .tag-mode-toggle:focus-visible {
@@ -488,12 +488,15 @@ export default {
 .tag-mode-toggle .toggle-label {
 	font-size: 0.8rem;
 	font-weight: 600;
-	color: var(--color-text-maxcontrast);
+	color: var(--color-primary-element-text);
 	letter-spacing: 0.04em;
+    opacity: 0.5;
+    filter: saturate(0.7);
 }
 
 .tag-mode-toggle .toggle-label.is-active {
-	color: var(--color-primary-element);
+    opacity: 1;
+    filter: none;
 }
 
 .tag-mode-toggle .toggle-icon {
@@ -507,50 +510,47 @@ export default {
 .tag-mode-toggle .toggle-icon svg {
 	width: 22px;
 	height: 22px;
-	fill: var(--color-primary-element);
+	fill: var(--color-primary-element-text);
 }
 
-.tu-dashboard__tag-mode {
-	flex: 0 0 150px;
-	align-self: stretch;
-	background: none;
-	box-shadow: none;
-}
 
 .tu-dashboard__submit {
-	align-self: flex-start;
-	min-width: 160px;
+	margin-block-start: 6px;
 }
 
 .tu-dashboard__content {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
 	gap: calc(var(--default-grid-baseline) * 3);
 	width: 100%;
 	align-items: stretch;
-	padding: 0 calc(var(--default-grid-baseline) * 2);
-	box-sizing: border-box;
+	flex: 1 1 auto;
+	min-height: 0;
 }
 
 .tu-dashboard__content--full {
-	flex-direction: column;
+	display: block;
+}
+
+.tu-dashboard__content--full .tu-dashboard__favorites,
+.tu-dashboard__content--full .tu-dashboard__results {
+	grid-column: 1 / -1;
 }
 
 .tu-dashboard__favorites {
-    flex: 0 0 30%;
-    max-width: 360px;
-    background-color: transparent;
-    border-radius: var(--border-radius);
-    padding: calc(var(--default-grid-baseline) * 2);
-    min-width: 280px;
+	background-color: transparent;
+	border-radius: var(--border-radius);
+	padding: calc(var(--default-grid-baseline) * 2);
+	min-height: 0;
+	overflow-y: auto;
 }
 
 .tu-dashboard__results {
-	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
-	min-width: 320px;
+	min-height: 0;
+	overflow: hidden;
 }
 
 .tu-dashboard__results-header {
@@ -581,6 +581,9 @@ export default {
 	border: 1px solid var(--color-border);
 	box-shadow: var(--box-shadow-level-1);
 	padding: calc(var(--default-grid-baseline) * 2);
+	min-height: 0;
+	overflow: auto;
+	height: 100%;
 }
 
 .tu-dashboard__list--favorites {
@@ -588,6 +591,7 @@ export default {
 	border: none;
 	box-shadow: none;
 	padding: 0;
+	overflow: visible;
 }
 
 @media (max-width: 768px) {
@@ -602,6 +606,17 @@ export default {
 
 	.tu-dashboard__actions {
 		justify-content: flex-end;
+	}
+}
+
+@media (max-width: 1100px) {
+	.tu-dashboard__content {
+		grid-template-columns: 1fr;
+	}
+
+	.tu-dashboard__favorites,
+	.tu-dashboard__results {
+		padding: calc(var(--default-grid-baseline) * 2) 0;
 	}
 }
 

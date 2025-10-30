@@ -375,9 +375,9 @@ export default {
 }
 
 .file-table__row {
-    border-bottom: 1px solid var(--color-border);
-    background: var(--color-background-default);
-    min-height: 112px;
+	border-bottom: 1px solid var(--color-border);
+	background: var(--color-background-default);
+	min-height: 160px;
 }
 
 .file-table__row:hover {
@@ -412,8 +412,11 @@ export default {
 }
 
 .file-table__thumb {
-	width: 96px;
-	height: 96px;
+	min-width: 140px;
+	max-width: 140px;
+	max-height: 140px;
+	width: 140px;
+	height: auto;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -423,9 +426,10 @@ export default {
 }
 
 .file-table__thumb img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	max-height: 140px;
 }
 
 .file-table__title {
@@ -484,7 +488,7 @@ export default {
 
 .file-card__thumb {
 	width: 100%;
-	height: 220px;
+	max-height: 260px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -494,9 +498,10 @@ export default {
 }
 
 .file-card__thumb img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	max-height: 260px;
 }
 
 .file-card__body {
